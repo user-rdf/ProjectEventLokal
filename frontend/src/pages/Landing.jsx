@@ -304,7 +304,7 @@ const Landing = () => {
 
             {/* Right Half: Solid Royal Periwinkle Purple with Overflowing Megaphone */}
             <div className="bg-[#514DC4] relative min-h-[240px] sm:min-h-[290px] lg:min-h-[310px] overflow-visible">
-              <div className="absolute -top-16 sm:-top-20 lg:-top-24 right-4 sm:right-10 lg:right-14 bottom-0 w-[230px] sm:w-[290px] lg:w-[340px] flex items-end justify-center pointer-events-none select-none z-20">
+              <div className="absolute -top-16 sm:-top-20 lg:-top-24 right-0 bottom-0 w-[230px] sm:w-[290px] lg:w-[340px] flex items-end justify-end pointer-events-none select-none z-20">
                 <img
                   src="/images/megaphone_hand.png"
                   alt="Megaphone Hand"

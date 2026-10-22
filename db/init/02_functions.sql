@@ -1,0 +1,6 @@
+-- TODO (database owner):
+--  checkout(ticket_type_id, name, email, phone)  -> SELECT ... FOR UPDATE on ticket_types,
+--      check sold < quota, UPDATE sold, INSERT booking + payment + ticket. All-or-nothing.
+--  cancel_booking(booking_id)  -> booking cancelled, ticket void, sold - 1,
+--      then promote the oldest 'waiting' entry (FOR UPDATE SKIP LOCKED) into a new booking + ticket.
+--  trigger (optional) writing to audit_log.

@@ -1,0 +1,18 @@
+-- TODO (database owner): 9 tables. Updated for the revised web-app flow.
+--
+-- users            id, name, email (citext UNIQUE), password_hash, role CHECK IN ('organizer','staff')
+-- events           id, organizer_id FK, title, slug UNIQUE, description, venue,
+--                  category CHECK IN ('workshop','seminar','himpunan','kampus','komunitas'),
+--                  starts_at, ends_at CHECK (ends_at > starts_at),
+--                  status CHECK IN ('draft','published','closed')      -- only 'published' shows on /events
+-- ticket_types     id, event_id FK, name, price_idr CHECK >= 0, quota CHECK > 0,
+--                  sold CHECK (sold >= 0 AND sold <= quota)
+-- bookings         id, ticket_type_id FK, attendee_name, attendee_email (citext), attendee_phone,
+--                  status CHECK IN ('pending','confirmed','cancelled'), created_at
+--                  -- NEW: attendee_phone; UNIQUE (ticket_type_id, attendee_email) where status <> 'cancelled'
+-- payments         id, booking_id FK, amount_idr CHECK >= 0, status (simulated), paid_at
+-- tickets          id, booking_id FK UNIQUE, code UNIQUE (random, unguessable), status IN ('valid','used','void')
+-- waitlist_entries id, ticket_type_id FK, name, email, phone, status IN ('waiting','promoted','expired'),
+--                  created_at, UNIQUE (ticket_type_id, email)
+-- check_ins        id, ticket_id FK UNIQUE (guards one-time use), scanned_by FK users, scanned_at
+-- audit_log        id, entity, entity_id, action, actor_id, created_at   (optional, filled by trigger)

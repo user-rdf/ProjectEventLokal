@@ -1,0 +1,1 @@
+-- TODO: large seed (~50k rows), EXPLAIN (ANALYZE, BUFFERS) before and after CREATE INDEX

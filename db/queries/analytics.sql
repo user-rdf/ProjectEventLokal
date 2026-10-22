@@ -1,0 +1,5 @@
+-- TODO: used by GET /manage/home and GET /manage/events/{id}/reports/summary
+-- 1) ongoing events + registered/checked-in counts:
+--    events JOIN ticket_types JOIN bookings JOIN tickets LEFT JOIN check_ins
+--    WHERE now() BETWEEN starts_at AND ends_at  GROUP BY event
+-- 2) revenue per ticket type and attendance rate (JOIN + GROUP BY + SUM/COUNT)

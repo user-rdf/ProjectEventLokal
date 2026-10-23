@@ -411,7 +411,7 @@ const Landing = () => {
             {/* Left: Newsletter Sign-up */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
               <h2 className="text-sm sm:text-base font-black tracking-[0.2em] uppercase text-neutral-950 mb-1">
-                23 LAYERS IN YOUR INBOX
+                EVENT2 GO IN YOUR INBOX
               </h2>
               <p className="text-xs text-neutral-500 mb-6">
                 Sign up for updates & inspiration

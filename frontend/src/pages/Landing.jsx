@@ -117,8 +117,8 @@ const Landing = () => {
 
           {/* Center Navigation Links */}
           <nav className="hidden lg:flex items-center gap-8 text-[11px] font-bold tracking-[0.2em] uppercase text-neutral-800">
-            <a href="#services" className="hover:text-[#5953C7] transition-colors py-1">DAFTAR EVENT</a>
-            <a href="#services" className="hover:text-[#5953C7] transition-colors py-1">KELOLA EVENT</a>
+            <button onClick={() => navigate('/events')} className="hover:text-[#5953C7] transition-colors py-1 cursor-pointer font-bold tracking-[0.2em] uppercase">DAFTAR EVENT</button>
+            <button onClick={() => navigate('/login')} className="hover:text-[#5953C7] transition-colors py-1 cursor-pointer font-bold tracking-[0.2em] uppercase">KELOLA EVENT</button>
             <a href="#why" className="hover:text-[#5953C7] transition-colors py-1">WHY</a>
             <a href="#clients" className="hover:text-[#5953C7] transition-colors py-1">CLIENTS</a>
             <a href="#highlights" className="hover:text-[#5953C7] transition-colors py-1">PRESS/AWARDS</a>

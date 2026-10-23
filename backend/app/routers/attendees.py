@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from app.core.security import require_organizer
 from app.db.pool import get_conn
 
@@ -8,8 +8,14 @@ router = APIRouter(prefix="/manage", tags=["manage: attendees"],
 
 
 @router.get("/events/{event_id}/attendees")
-def list_attendees(event_id: UUID):
-    """Mendapatkan daftar peserta yang sudah booking untuk dashboard panitia."""
+def list_attendees(
+    event_id: UUID, 
+    page: int = Query(default=1, ge=1, description="Nomor halaman (mulai dari 1)"),
+    limit: int = Query(default=20, ge=1, le=100, description="Jumlah data per halaman (maks 100)")
+):
+    """Mendapatkan daftar peserta dengan pagination."""
+    offset = (page - 1) * limit
+    
     with get_conn() as conn:
         rows = conn.execute("""
             SELECT 
@@ -25,14 +31,21 @@ def list_attendees(event_id: UUID):
             LEFT JOIN ticket_types tt ON b.ticket_type_id = tt.id
             WHERE b.event_id = %s::uuid
             ORDER BY b.created_at DESC
-        """, (event_id,)).fetchall()
+            LIMIT %s OFFSET %s
+        """, (event_id, limit, offset)).fetchall()
         
         return [dict(row) for row in rows]
 
 
 @router.get("/events/{event_id}/waitlist")
-def list_waitlist(event_id: UUID):
-    """Mendapatkan daftar tunggu untuk dashboard panitia."""
+def list_waitlist(
+    event_id: UUID,
+    page: int = Query(default=1, ge=1, description="Nomor halaman (mulai dari 1)"),
+    limit: int = Query(default=20, ge=1, le=100, description="Jumlah data per halaman (maks 100)")
+):
+    """Mendapatkan daftar tunggu dengan pagination."""
+    offset = (page - 1) * limit
+    
     with get_conn() as conn:
         rows = conn.execute("""
             SELECT 
@@ -47,7 +60,8 @@ def list_waitlist(event_id: UUID):
             JOIN ticket_types tt ON w.ticket_type_id = tt.id
             WHERE tt.event_id = %s::uuid
             ORDER BY w.created_at ASC
-        """, (event_id,)).fetchall()
+            LIMIT %s OFFSET %s
+        """, (event_id, limit, offset)).fetchall()
         
         return [dict(row) for row in rows]
 

@@ -1,4 +1,5 @@
 from typing import Literal, Optional
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -6,7 +7,7 @@ ScanStatus = Literal["valid", "already_used", "invalid", "cancelled", "wrong_eve
 
 
 class CheckInRequest(BaseModel):
-    event_id: int
+    event_id: UUID
     code: str = Field(min_length=8, max_length=128, description="Isi QR (kode tiket)")
 
 

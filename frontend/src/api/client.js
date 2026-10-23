@@ -9,11 +9,15 @@ export async function api(path, { method = "GET", body, auth = false } = {}) {
   if (auth && getToken()) headers.Authorization = `Bearer ${getToken()}`;
   const res = await fetch(BASE + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
   const data = await res.json().catch(() => null);
-  if (!res.ok) {
-    const d = data?.detail;
-    const msg = typeof d === "string" ? d : Array.isArray(d) ? d.map((x) => x.msg).join(", ") : "Terjadi kesalahan";
-    const err = new Error(msg);
+    if (!res.ok) {
+    // Baca format kontrak API dulu, fallback ke format default FastAPI
+    const errMsg = data?.error?.message 
+                || (typeof data?.detail === "string" ? data.detail 
+                : (Array.isArray(data?.detail) ? data.detail.map((x) => x.msg).join(", ") : "Terjadi kesalahan"));
+    
+    const err = new Error(errMsg);
     err.status = res.status;
+    err.code = data?.error?.code; // Simpan kode (misal: 'EL001') jika komponen UI butuh handle khusus
     throw err;
   }
   return data;

@@ -204,16 +204,13 @@ const EventList = () => {
           <div className="flex items-center gap-6">
             <div 
               onClick={() => navigate('/')} 
-              className="flex items-center gap-2 cursor-pointer group select-none"
+              className="flex items-center cursor-pointer group select-none"
             >
               <img 
-                src="/images/platform_logo_badge.png" 
-                alt="EventLokal" 
-                className="w-8 h-8 rounded-lg object-contain shadow-xs group-hover:scale-105 transition-transform" 
+                src="/images/Logo logo_EVENT2 GO.png" 
+                alt="EVENT 2 GO" 
+                className="h-9 w-auto object-contain group-hover:scale-105 transition-transform" 
               />
-              <span className="font-black text-xl tracking-tight text-neutral-950">
-                EVENT<span className="text-[#5953C7]">R</span>
-              </span>
             </div>
 
             <button className="hidden md:flex items-center gap-1.5 text-xs font-semibold text-neutral-700 hover:text-[#5953C7] py-2 px-3 rounded-lg hover:bg-neutral-100 transition-colors">
@@ -653,94 +650,76 @@ const EventList = () => {
         </div>
       </section>
 
-      {/* ================= SECTION: LAYAR LEBAR & BIOSKOP ================= */}
+      {/* ================= SECTION: LOKÉT SCREEN (LAYAR LEBAR & TEATER PILIHAN) ================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🎬</span>
+          <div className="flex items-center gap-2.5">
+            <img 
+              src="/images/loket_screen_icon.png" 
+              alt="LOKÉT Screen" 
+              className="w-6 h-6 object-contain" 
+            />
             <h2 className="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight">
-              Layar Lebar & Teater Pilihan
+              LOKÉT Screen
             </h2>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Movie 1 */}
-          <div 
-            onClick={() => navigate('/events/detail')}
-            className="group cursor-pointer rounded-2xl overflow-hidden border border-neutral-200/80 hover:shadow-lg transition-all"
-          >
-            <div className="aspect-[3/4] bg-neutral-900 relative overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&q=80" 
-                alt="Agak Laen" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4 text-white">
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">KOMEDI NASIONAL</span>
-                <h4 className="font-bold text-base">Agak Laen: The Phenomenon</h4>
-                <p className="text-xs text-neutral-300">Tiket Bioskop & Teater</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Movie 2 */}
-          <div 
-            onClick={() => navigate('/events/detail')}
-            className="group cursor-pointer rounded-2xl overflow-hidden border border-neutral-200/80 hover:shadow-lg transition-all"
-          >
-            <div className="aspect-[3/4] bg-neutral-900 relative overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1518173946687-a4c8a383392e?auto=format&fit=crop&w=600&q=80" 
-                alt="Rumah Masa Depan" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4 text-white">
-                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">DRAMA KELUARGA</span>
-                <h4 className="font-bold text-base">Rumah Masa Depan / Bapak Jujur</h4>
-                <p className="text-xs text-neutral-300">Panggung Teater Terbuka</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Movie 3 */}
-          <div 
-            onClick={() => navigate('/events/detail')}
-            className="group cursor-pointer rounded-2xl overflow-hidden border border-neutral-200/80 hover:shadow-lg transition-all"
-          >
-            <div className="aspect-[3/4] bg-neutral-900 relative overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80" 
-                alt="Action Series" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-4 text-white">
-                <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">ACTION & MARTIAL ARTS</span>
-                <h4 className="font-bold text-base">Satria Nusantara Live Showcase</h4>
-                <p className="text-xs text-neutral-300">Auditorium Taman Ismail Marzuki</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Promo Box (4th block) */}
-          <div className="bg-[#4338CA] rounded-2xl p-6 text-white flex flex-col justify-between shadow-md">
-            <div>
-              <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm mb-4">
-                🍿
-              </span>
-              <h3 className="font-black text-xl leading-tight mb-2">
-                Temukan tontonan berikutnya di layar lebar.
-              </h3>
-              <p className="text-xs text-indigo-200 leading-relaxed">
-                Dapatkan kursi terbaik untuk pemutaran film spesial, teater broadway lokal, dan panggung musikal favoritmu!
-              </p>
-            </div>
-            <button 
+        {/* Outer scroll wrapper for responsive, strictly matching 1200px layout */}
+        <div className="overflow-x-auto pb-4 pt-2">
+          <div className="relative flex flex-row items-start gap-4 max-w-[1200px] h-[450px]">
+            {/* Card Poster 1 */}
+            <img 
+              src="/images/movie_warga_rusun.png" 
+              alt="Warga Rusun 609" 
               onClick={() => navigate('/events/detail')}
-              className="mt-6 bg-white hover:bg-neutral-100 text-[#4338CA] font-extrabold text-xs uppercase tracking-wider px-5 py-2.5 rounded-full shadow transition-all text-center"
+              className="w-[288px] h-[421px] rounded-md object-cover flex-shrink-0 cursor-pointer hover:opacity-95 transition-opacity shadow-sm" 
+            />
+
+            {/* Card Poster 2 */}
+            <img 
+              src="/images/movie_bapak_jujur.png" 
+              alt="Bapak Paling Jujur" 
+              onClick={() => navigate('/events/detail')}
+              className="w-[288px] h-[421px] rounded-md object-cover flex-shrink-0 cursor-pointer hover:opacity-95 transition-opacity shadow-sm" 
+            />
+
+            {/* Card Poster 3 */}
+            <img 
+              src="/images/movie_street_fighter.png" 
+              alt="Street Fighter" 
+              onClick={() => navigate('/events/detail')}
+              className="w-[288px] h-[421px] rounded-md object-cover flex-shrink-0 cursor-pointer hover:opacity-95 transition-opacity shadow-sm" 
+            />
+
+            {/* Kotak Promo Ungu (Overlap) */}
+            <div 
+              style={{ clipPath: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)' }}
+              className="absolute right-0 top-[-8px] w-[430px] h-[437px] z-10 bg-[#5862C1] rounded-md shadow-lg overflow-hidden"
             >
-              Lihat Jadwal
-            </button>
+              {/* Konten Kotak Ungu */}
+              <div className="flex flex-col items-end text-right pt-[35px] pr-[24px] z-20 relative">
+                <h3 className="text-white font-extrabold text-2xl sm:text-[26px] leading-[1.25] max-w-[280px]">
+                  Temukan tontonan berikutnya di layar lebar.
+                </h3>
+                <p className="text-white/85 text-xs sm:text-sm mt-3 max-w-[260px] leading-relaxed font-normal">
+                  Nikmati film terbaru tanpa ribet dengan LOKÉT Screen.
+                </p>
+                <button 
+                  onClick={() => navigate('/events/detail')}
+                  className="bg-white text-[#5862C1] rounded-full px-6 py-3 mt-4 relative z-30 hover:scale-105 transition-transform cursor-pointer font-bold text-xs sm:text-sm shadow-md active:scale-95"
+                >
+                  Nonton Sekarang
+                </button>
+              </div>
+
+              {/* Maskot Hewan / Karakter Kacamata Popcorn */}
+              <img 
+                src="/images/popcorn_glasses.png" 
+                alt="Maskot LOKET Screen" 
+                className="absolute bottom-0 right-0 w-[200px] pointer-events-none z-10 select-none" 
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -786,14 +765,13 @@ const EventList = () => {
             <div className="md:col-span-4">
               <div 
                 onClick={() => navigate('/')} 
-                className="flex items-center gap-2 cursor-pointer mb-4"
+                className="flex items-center cursor-pointer mb-4"
               >
                 <img 
-                  src="/images/platform_logo_badge.png" 
-                  alt="EventLokal" 
-                  className="w-8 h-8 rounded-lg object-contain shadow-xs" 
+                  src="/images/Logo logo_EVENT2 GO.png" 
+                  alt="EVENT 2 GO" 
+                  className="h-9 w-auto object-contain" 
                 />
-                <span className="font-black text-xl text-neutral-950">EVENTR<span className="text-[#5953C7]">.ID</span></span>
               </div>
               <p className="text-xs text-neutral-500 leading-relaxed max-w-sm mb-6">
                 Platform ticketing dan manajemen event terlengkap di Indonesia. Temukan acara kampus, konser megah, hingga festival komunitas dalam satu sentuhan.

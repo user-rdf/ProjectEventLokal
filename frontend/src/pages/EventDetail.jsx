@@ -92,16 +92,13 @@ const EventDetail = () => {
             </button>
             <div 
               onClick={() => navigate('/events')} 
-              className="flex items-center gap-2 cursor-pointer group select-none ml-2"
+              className="flex items-center cursor-pointer group select-none ml-2"
             >
               <img 
-                src="/images/platform_logo_badge.png" 
-                alt="EventLokal" 
-                className="w-7 h-7 rounded-lg object-contain shadow-xs group-hover:scale-105 transition-transform" 
+                src="/images/Logo logo_EVENT2 GO.png" 
+                alt="EVENT 2 GO" 
+                className="h-8 w-auto object-contain group-hover:scale-105 transition-transform" 
               />
-              <span className="font-black text-lg tracking-tight text-neutral-950">
-                EVENT<span className="text-[#5953C7]">R</span>
-              </span>
             </div>
           </div>
 

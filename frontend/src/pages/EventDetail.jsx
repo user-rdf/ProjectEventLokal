@@ -425,8 +425,8 @@ const EventDetail = () => {
 
               {/* Checkout Button */}
               <button 
-                onClick={() => setShowCheckoutModal(true)}
-                className="w-full bg-[#5953C7] hover:bg-[#4a44b5] text-white py-3.5 rounded-full font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                onClick={() => navigate('/checkout')}
+                className="w-full bg-[#5953C7] hover:bg-[#4a44b5] text-white py-3.5 rounded-full font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Ticket className="w-4 h-4" />
                 <span>Beli Tiket Sekarang</span>

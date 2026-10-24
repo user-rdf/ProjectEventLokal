@@ -52,49 +52,186 @@ const Landing = () => {
     }
   };
 
+  // =========================================================================
+  // DUMMY / MOCK DATA (Struktur disesuaikan dengan respon fetch REST API backend)
+  // Mudah diganti dengan:
+  // const [articles, setArticles] = useState(mockArticles);
+  // useEffect(() => { fetch('/api/articles').then(r => r.json()).then(data => setArticles(data)); }, []);
+  // =========================================================================
+
+  // 1. Data Dummy: Layanan / Card Aksi Utama
+  const serviceCards = [
+    {
+      id: 'service-daftar-event',
+      title: 'DAFTAR EVENT',
+      description: 'Online atau offline, gratis atau berbayar. Temukan musik, pesta, workshop hingga seminar yang cocok untuk kamu. Dapatkan tiket langsung tanpa ribet daftar akun.',
+      buttonText: 'JELAJAHI EVENT',
+      actionPath: '/events',
+      variant: 'outline'
+    },
+    {
+      id: 'service-kelola-event',
+      title: 'KELOLA EVENT',
+      description: 'Dari event kampus, komunitas lokal sampai festival besar. Buat event dalam hitungan menit, pantau penjualan tiket real-time, dan scan QR tiket langsung di pintu masuk.',
+      buttonText: 'BUAT EVENT SEKARANG',
+      actionPath: '/login',
+      variant: 'solid'
+    }
+  ];
+
+  // 2. Data Dummy: Brand Partner / Penyelenggara Terpercaya
+  const trustedPartners = [
+    {
+      id: 'partner-airbnb',
+      name: 'airbnb',
+      type: 'icon',
+      svgPath: 'M16 1c-2.3 0-4.3 1.2-5.4 3.1-2.9 5.1-6.6 12.3-6.6 17.4 0 5.8 4.7 10.5 10.5s10.5-4.7 10.5-10.5c0-5.1-3.7-12.3-6.6-17.4-1.1-1.9-3.1-3.1-5.4-3.1zm0 3c1.4 0 2.6.7 3.3 1.9 2.8 4.9 6.2 11.6 6.2 16.1 0 4.4-3.6 8-8 8s-8-3.6-8-8c0-4.5 3.4-11.2 6.2-16.1.7-1.2 1.9-1.9 3.3-1.9zm0 10.5c-2.5 0-4.5 2-4.5 4.5 0 2.2 1.5 4.1 3.6 4.4v2.1h1.8v-2.1c2.1-.3 3.6-2.2 3.6-4.4 0-2.5-2-4.5-4.5-4.5z',
+      viewBox: '0 0 32 32',
+      textClass: 'font-extrabold text-sm sm:text-base tracking-tight'
+    },
+    {
+      id: 'partner-google',
+      name: 'Google',
+      type: 'text',
+      textClass: 'font-bold text-lg sm:text-xl tracking-tight text-neutral-800'
+    },
+    {
+      id: 'partner-slack',
+      name: 'slack',
+      type: 'icon',
+      svgPath: 'M6 15a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2v2a2 2 0 0 1-2 2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-5zm2-7a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2H9zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5zm7 2a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2v-2a2 2 0 0 1 2-2zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V8a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5zm-2 7a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2h2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-5z',
+      viewBox: '0 0 24 24',
+      textClass: 'font-extrabold text-sm sm:text-base lowercase tracking-tight'
+    },
+    {
+      id: 'partner-sephora',
+      name: 'SEPHORA',
+      type: 'text',
+      textClass: 'font-extrabold text-xs sm:text-sm tracking-[0.25em] uppercase text-neutral-800'
+    },
+    {
+      id: 'partner-glossier',
+      name: 'Glossier.',
+      type: 'text',
+      textClass: 'font-serif italic font-bold text-base sm:text-lg tracking-tight text-neutral-800'
+    },
+    {
+      id: 'partner-spotify',
+      name: 'Spotify',
+      type: 'icon',
+      svgPath: 'M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z',
+      viewBox: '0 0 24 24',
+      textClass: 'font-extrabold text-sm sm:text-base tracking-tight'
+    }
+  ];
+
+  // 3. Data Dummy: Artikel & Sorotan (Highlights / Press / Awards)
   const highlights = [
     {
+      id: 'article-la-retreat',
+      slug: 'la-retreat-launches',
       date: '10.24',
+      publishedAt: '2024-10-24',
       title: 'La Retreat Launches',
       desc: 'The art of celebration takes on new meaning at our bespoke retreat.',
+      category: 'Press Release',
+      author: 'Editorial Team',
       image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80',
     },
     {
+      id: 'article-assembly-workshop',
+      slug: 'the-assembly-workshop',
       date: '07.19',
+      publishedAt: '2024-07-19',
       title: 'The Assembly Workshop',
       desc: 'An experiential workshop honoring global creative leaders.',
+      category: 'Workshop & Awards',
+      author: 'Event Community',
       image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=600&q=80',
     },
     {
+      id: 'article-bba-today',
+      slug: 'bba-today',
       date: '05.17',
+      publishedAt: '2024-05-17',
       title: 'BBA Today',
       desc: 'Highlighting the power of live brand activations & community.',
+      category: 'Brand Activation',
+      author: 'Media Partner',
       image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80',
     },
     {
+      id: 'article-petina-conference',
+      slug: 'petina-conference',
       date: '03.14',
+      publishedAt: '2024-03-14',
       title: 'Petina Conference',
       desc: 'Annual gathering of tech visionaries & thought leaders.',
+      category: 'Conference',
+      author: 'Tech Reporter',
       image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=600&q=80',
     },
     {
+      id: 'article-best-concept',
+      slug: 'best-corporate-event-concept',
       date: '11.11',
+      publishedAt: '2024-11-11',
       title: 'Best Corporate Event Concept',
       desc: 'Shortlisted for International Event Excellence Awards.',
+      category: 'Award Nomination',
+      author: 'Event Council',
       image: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=600&q=80',
     },
     {
+      id: 'article-museum-melancholy',
+      slug: 'museum-of-melancholy',
       date: '10.08',
+      publishedAt: '2024-10-08',
       title: 'Museum of Melancholy',
       desc: 'An interactive sensory exhibition featured across national media.',
+      category: 'Exhibition',
+      author: 'Art Critic',
       image: 'https://images.unsplash.com/photo-1508997449629-303059a039c0?auto=format&fit=crop&w=600&q=80',
     },
     {
+      id: 'article-savoy',
+      slug: 'savoy-gala',
       date: '07.03',
+      publishedAt: '2024-07-03',
       title: 'Savoy',
       desc: 'Our largest gala to date, with bespoke floral installations and theatrical effects.',
+      category: 'Gala & Showcase',
+      author: 'Lead Producer',
       image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=600&q=80',
     },
+  ];
+
+  // 4. Data Dummy: Card Galeri / Media Sosial ("FOLLOW US!")
+  const galleryCards = [
+    {
+      id: 'gallery-cabana-structure',
+      title: 'Event Cabana Structure',
+      image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+      linkUrl: 'https://instagram.com',
+      hasQuote: false,
+      quoteText: null
+    },
+    {
+      id: 'gallery-poolside-atmosphere',
+      title: 'Poolside Cabana Atmosphere',
+      image: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80',
+      linkUrl: 'https://instagram.com',
+      hasQuote: false,
+      quoteText: null
+    },
+    {
+      id: 'gallery-summer-resort',
+      title: 'Summer Resort Inspiration',
+      image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80',
+      linkUrl: 'https://instagram.com',
+      hasQuote: true,
+      quoteText: ['MAGIC', 'DOES NOT LIVE', 'IN THE', 'COMFORT ZONE']
+    }
   ];
 
   return (
@@ -229,47 +366,36 @@ const Landing = () => {
         <div className="max-w-5xl mx-auto relative">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 relative">
 
-            {/* Column 1: DAFTAR EVENT */}
-            <div className="flex flex-col items-start justify-between">
-              <div>
-                <h2 className="text-base sm:text-lg font-black tracking-[0.2em] uppercase text-neutral-950 mb-4">
-                  DAFTAR EVENT
-                </h2>
-                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed max-w-md mb-8">
-                  Online atau offline, gratis atau berbayar. Temukan musik, pesta, workshop hingga seminar yang cocok untuk kamu. Dapatkan tiket langsung tanpa ribet daftar akun.
-                </p>
-              </div>
-              <button
-                onClick={() => navigate('/events')}
-                className="group inline-flex items-center gap-2 border border-neutral-300 hover:border-neutral-900 rounded-full px-6 py-2.5 text-[11px] font-bold tracking-[0.15em] uppercase text-neutral-800 hover:text-neutral-950 transition-all hover:shadow-sm"
+            {serviceCards.map((service, idx) => (
+              <div 
+                key={service.id} 
+                className={`flex flex-col items-start justify-between ${idx === 1 ? 'md:pl-8' : ''}`}
               >
-                <span>JELAJAHI EVENT</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-              </button>
-            </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-black tracking-[0.2em] uppercase text-neutral-950 mb-4">
+                    {service.title}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed max-w-md mb-8">
+                    {service.description}
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate(service.actionPath)}
+                  className={`group inline-flex items-center gap-2 rounded-full py-2.5 text-[11px] font-bold tracking-[0.15em] uppercase transition-all active:scale-95 ${
+                    service.variant === 'solid'
+                      ? 'bg-neutral-950 hover:bg-neutral-800 text-white px-7 hover:shadow-md'
+                      : 'border border-neutral-300 hover:border-neutral-900 text-neutral-800 hover:text-neutral-950 px-6 hover:shadow-sm'
+                  }`}
+                >
+                  <span>{service.buttonText}</span>
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </button>
+              </div>
+            ))}
 
             {/* Slanted Dashed Divider Line (visible on md+) */}
             <div className="hidden md:block absolute left-1/2 top-4 bottom-4 -translate-x-1/2 pointer-events-none">
               <div className="h-full w-px border-l-2 border-dashed border-neutral-300 rotate-6 transform origin-center"></div>
-            </div>
-
-            {/* Column 2: KELOLA EVENT */}
-            <div className="flex flex-col items-start justify-between md:pl-8">
-              <div>
-                <h2 className="text-base sm:text-lg font-black tracking-[0.2em] uppercase text-neutral-950 mb-4">
-                  KELOLA EVENT
-                </h2>
-                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed max-w-md mb-8">
-                  Dari event kampus, komunitas lokal sampai festival besar. Buat event dalam hitungan menit, pantau penjualan tiket real-time, dan scan QR tiket langsung di pintu masuk.
-                </p>
-              </div>
-              <button
-                onClick={() => navigate('/login')}
-                className="group inline-flex items-center gap-2 bg-neutral-950 hover:bg-neutral-800 rounded-full px-7 py-2.5 text-[11px] font-bold tracking-[0.15em] uppercase text-white transition-all hover:shadow-md active:scale-95"
-              >
-                <span>BUAT EVENT SEKARANG</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-              </button>
             </div>
 
           </div>
@@ -342,50 +468,21 @@ const Landing = () => {
 
               {/* Brand Logos Grid */}
               <div className="grid grid-cols-3 gap-y-8 gap-x-6 items-center mb-10 text-neutral-800">
-                {/* Airbnb */}
-                <div className="flex items-center gap-2 group cursor-default">
-                  <svg className="w-6 h-6 fill-current text-neutral-800 group-hover:text-[#5953C7] transition-colors" viewBox="0 0 32 32">
-                    <path d="M16 1c-2.3 0-4.3 1.2-5.4 3.1-2.9 5.1-6.6 12.3-6.6 17.4 0 5.8 4.7 10.5 10.5 10.5s10.5-4.7 10.5-10.5c0-5.1-3.7-12.3-6.6-17.4-1.1-1.9-3.1-3.1-5.4-3.1zm0 3c1.4 0 2.6.7 3.3 1.9 2.8 4.9 6.2 11.6 6.2 16.1 0 4.4-3.6 8-8 8s-8-3.6-8-8c0-4.5 3.4-11.2 6.2-16.1.7-1.2 1.9-1.9 3.3-1.9zm0 10.5c-2.5 0-4.5 2-4.5 4.5 0 2.2 1.5 4.1 3.6 4.4v2.1h1.8v-2.1c2.1-.3 3.6-2.2 3.6-4.4 0-2.5-2-4.5-4.5-4.5z" />
-                  </svg>
-                  <span className="font-extrabold text-sm sm:text-base tracking-tight">airbnb</span>
-                </div>
-
-                {/* Google */}
-                <div className="flex items-center group cursor-default">
-                  <span className="font-bold text-lg sm:text-xl tracking-tight text-neutral-800 group-hover:text-[#5953C7] transition-colors">
-                    Google
-                  </span>
-                </div>
-
-                {/* Slack */}
-                <div className="flex items-center gap-1.5 group cursor-default">
-                  <svg className="w-5 h-5 fill-current text-neutral-800 group-hover:text-[#5953C7] transition-colors" viewBox="0 0 24 24">
-                    <path d="M6 15a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2v2a2 2 0 0 1-2 2zm1 0a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-5zm2-7a2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2v2H9zm0 1a2 2 0 0 1 2 2 2 2 0 0 1-2 2H4a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5zm7 2a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-2v-2a2 2 0 0 1 2-2zm-1 0a2 2 0 0 1-2 2 2 2 0 0 1-2-2V8a2 2 0 0 1 2-2 2 2 0 0 1 2 2v5zm-2 7a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2v-2h2zm0-1a2 2 0 0 1-2-2 2 2 0 0 1 2-2h5a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-5z" />
-                  </svg>
-                  <span className="font-extrabold text-sm sm:text-base lowercase tracking-tight">slack</span>
-                </div>
-
-                {/* Sephora */}
-                <div className="flex items-center group cursor-default">
-                  <span className="font-extrabold text-xs sm:text-sm tracking-[0.25em] uppercase text-neutral-800 group-hover:text-[#5953C7] transition-colors">
-                    SEPHORA
-                  </span>
-                </div>
-
-                {/* Glossier */}
-                <div className="flex items-center group cursor-default">
-                  <span className="font-serif italic font-bold text-base sm:text-lg tracking-tight text-neutral-800 group-hover:text-[#5953C7] transition-colors">
-                    Glossier.
-                  </span>
-                </div>
-
-                {/* Spotify */}
-                <div className="flex items-center gap-1.5 group cursor-default">
-                  <svg className="w-5 h-5 fill-current text-neutral-800 group-hover:text-[#5953C7] transition-colors" viewBox="0 0 24 24">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                  </svg>
-                  <span className="font-extrabold text-sm sm:text-base tracking-tight">Spotify</span>
-                </div>
+                {trustedPartners.map((partner) => (
+                  <div key={partner.id} className="flex items-center gap-1.5 sm:gap-2 group cursor-default">
+                    {partner.type === 'icon' && partner.svgPath && (
+                      <svg 
+                        className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-neutral-800 group-hover:text-[#5953C7] transition-colors shrink-0" 
+                        viewBox={partner.viewBox || "0 0 24 24"}
+                      >
+                        <path d={partner.svgPath} />
+                      </svg>
+                    )}
+                    <span className={`${partner.textClass} group-hover:text-[#5953C7] transition-colors`}>
+                      {partner.name}
+                    </span>
+                  </div>
+                ))}
               </div>
 
               <div>
@@ -411,7 +508,7 @@ const Landing = () => {
             {/* Left: Newsletter Sign-up */}
             <div className="flex flex-col items-center md:items-start text-center md:text-left">
               <h2 className="text-sm sm:text-base font-black tracking-[0.2em] uppercase text-neutral-950 mb-1">
-                23 LAYERS IN YOUR INBOX
+                EVENT2 GO IN YOUR INBOX
               </h2>
               <p className="text-xs text-neutral-500 mb-6">
                 Sign up for updates & inspiration
@@ -563,46 +660,34 @@ const Landing = () => {
 
           {/* 3 Photos Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-
-            {/* Card 1: Modern White Tent Structure */}
-            <div className="group relative aspect-square overflow-hidden bg-neutral-100 shadow-sm cursor-pointer">
-              <img
-                src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80"
-                alt="Event Cabana Structure"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <InstagramIcon className="w-6 h-6 text-white" />
+            {galleryCards.map((item) => (
+              <div 
+                key={item.id} 
+                className="group relative aspect-square overflow-hidden bg-neutral-100 shadow-sm cursor-pointer"
+                onClick={() => window.open(item.linkUrl, '_blank')}
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${item.hasQuote ? 'filter brightness-95' : ''}`}
+                />
+                {item.hasQuote ? (
+                  <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+                    <p className="text-amber-300 font-black tracking-tight text-center text-xs sm:text-sm uppercase leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                      {item.quoteText.map((line, idx) => (
+                        <span key={idx} className="block">
+                          {line}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <InstagramIcon className="w-6 h-6 text-white" />
+                  </div>
+                )}
               </div>
-            </div>
-
-            {/* Card 2: Luxury Pool & Striped Awning */}
-            <div className="group relative aspect-square overflow-hidden bg-neutral-100 shadow-sm cursor-pointer">
-              <img
-                src="https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=800&q=80"
-                alt="Poolside Cabana Atmosphere"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <InstagramIcon className="w-6 h-6 text-white" />
-              </div>
-            </div>
-
-            {/* Card 3: Girl on steps with "MAGIC DOES NOT LIVE IN THE COMFORT ZONE" typography */}
-            <div className="group relative aspect-square overflow-hidden bg-neutral-100 shadow-sm cursor-pointer">
-              <img
-                src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
-                alt="Summer Resort Inspiration"
-                className="w-full h-full object-cover filter brightness-95 transition-transform duration-700 group-hover:scale-110"
-              />
-              {/* Bold Typography Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-                <p className="text-amber-300 font-black tracking-tight text-center text-xs sm:text-sm uppercase leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  MAGIC<br />DOES NOT LIVE<br />IN THE<br />COMFORT ZONE
-                </p>
-              </div>
-            </div>
-
+            ))}
           </div>
 
           <div className="text-right mt-4">

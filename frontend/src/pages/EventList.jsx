@@ -27,6 +27,27 @@ const EventList = () => {
   const [selectedCategory, setSelectedCategory] = useState('Semua Event');
   const [event2GoTab, setEvent2GoTab] = useState('Konser');
 
+  // =========================================================================
+  // DUMMY / MOCK DATA (Struktur disesuaikan dengan respon fetch REST API backend)
+  // Contoh Fetch API:
+  // const [events, setEvents] = useState(eventSeruList);
+  // useEffect(() => { fetch('/api/events').then(r => r.json()).then(data => setEvents(data)); }, []);
+  // =========================================================================
+
+  // Hero Featured Event (Konser Unggulan / Billboard)
+  const heroFeaturedEvent = {
+    id: 'evt-yf-jakarta-gbk',
+    initials: 'YF',
+    badgeText: 'Konser Spesial Terbesar 2024',
+    subBadge: 'SPECIAL PERFORMANCE',
+    titleLines: ['LIVE IN', 'JAKARTA', 'GBK STADIUM'],
+    dateCode: '24.10.26',
+    dateFormatted: '26 Oktober 2024',
+    venue: 'Stadion Utama GBK, Senayan, Jakarta',
+    price_idr: 350000,
+    slug: 'yf-live-in-jakarta'
+  };
+
   const categories = [
     'Semua Event', 
     'Musik', 
@@ -40,6 +61,7 @@ const EventList = () => {
     'Konferensi'
   ];
 
+  // 1. Data Dummy: Event Seru & Paling Dinanti
   const eventSeruList = [
     {
       id: 'bca-expo-2024',
@@ -48,8 +70,11 @@ const EventList = () => {
       date: '28 Okt - 03 Nov 2024',
       location: 'ICE BSD, Tangerang',
       price: 'Gratis',
+      price_idr: 0,
+      quota: 5000,
       image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80',
-      badge: 'TERPOPULER'
+      badge: 'TERPOPULER',
+      slug: 'bca-expoversary-2024'
     },
     {
       id: 'indonesian-artists-tour',
@@ -58,8 +83,11 @@ const EventList = () => {
       date: '15 - 17 Nov 2024',
       location: 'Stadion Madya GBK, Jakarta',
       price: 'Rp 150.000',
+      price_idr: 150000,
+      quota: 12000,
       image: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=600&q=80',
-      badge: 'PRESALE'
+      badge: 'PRESALE',
+      slug: 'all-indonesian-artists-tour'
     },
     {
       id: 'soundrenaline-2024',
@@ -68,8 +96,11 @@ const EventList = () => {
       date: '23 - 24 Nov 2024',
       location: 'Carnaval Ancol, Jakarta',
       price: 'Rp 250.000',
+      price_idr: 250000,
+      quota: 25000,
       image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
-      badge: 'BEST SELLER'
+      badge: 'BEST SELLER',
+      slug: 'soundrenaline-fest-2024'
     },
     {
       id: 'indie-fest-4',
@@ -78,11 +109,15 @@ const EventList = () => {
       date: '30 Nov 2024',
       location: 'Senayan Park, Jakarta',
       price: 'Rp 75.000',
+      price_idr: 75000,
+      quota: 8000,
       image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80',
-      badge: 'PROMO'
+      badge: 'PROMO',
+      slug: 'indonesian-indie-fest-4'
     }
   ];
 
+  // 2. Data Dummy: Event Lagi Trending
   const trendingList = [
     {
       id: 'the-script-jakarta',
@@ -90,8 +125,10 @@ const EventList = () => {
       date: '14 Feb 2025',
       location: 'Indonesia Arena, Jakarta',
       price: 'Rp 650.000',
+      price_idr: 650000,
       organizer: 'Color Asia Live',
-      image: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=800&q=80',
+      slug: 'the-script-satellites-tour'
     },
     {
       id: 'festival-pasar-musik',
@@ -99,8 +136,10 @@ const EventList = () => {
       date: '08 - 10 Des 2024',
       location: 'Gambir Expo Kemayoran',
       price: 'Rp 195.000',
+      price_idr: 195000,
       organizer: 'Pasar Musik Media',
-      image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?auto=format&fit=crop&w=800&q=80',
+      slug: 'festival-pasar-musik-2024'
     },
     {
       id: 'dewa-19-all-stars',
@@ -108,11 +147,14 @@ const EventList = () => {
       date: '18 Jan 2025',
       location: 'Stadion Utama Gelora Bung Karno',
       price: 'Rp 450.000',
+      price_idr: 450000,
       organizer: 'Otello Asia',
-      image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80'
+      image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80',
+      slug: 'dewa-19-all-stars-tour'
     }
   ];
 
+  // 3. Data Dummy: Program Belajar / Edukasi Terpopuler
   const belajarList = [
     {
       id: 'web-dev-online',
@@ -121,7 +163,9 @@ const EventList = () => {
       date: 'Sabtu, 09 Nov 2024 • 09.00 WIB',
       location: 'Online Zoom Meeting',
       price: 'Rp 149.000',
-      image: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&q=80'
+      price_idr: 149000,
+      image: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&q=80',
+      slug: 'fullstack-web-development-bootcamp'
     },
     {
       id: 'uiux-masterclass',
@@ -130,7 +174,9 @@ const EventList = () => {
       date: 'Minggu, 17 Nov 2024 • 13.00 WIB',
       location: 'Online Zoom Meeting',
       price: 'Rp 99.000',
-      image: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80'
+      price_idr: 99000,
+      image: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=600&q=80',
+      slug: 'ui-ux-masterclass-wireframe-prototype'
     },
     {
       id: 'data-science-ai',
@@ -139,7 +185,9 @@ const EventList = () => {
       date: 'Sabtu, 23 Nov 2024 • 10.00 WIB',
       location: 'Online Zoom Meeting',
       price: 'Rp 189.000',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80'
+      price_idr: 189000,
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80',
+      slug: 'data-science-generative-ai'
     },
     {
       id: 'digital-marketing-mastery',
@@ -148,49 +196,93 @@ const EventList = () => {
       date: 'Sabtu, 30 Nov 2024 • 14.00 WIB',
       location: 'Online Zoom Meeting',
       price: 'Rp 129.000',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80'
+      price_idr: 129000,
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80',
+      slug: 'digital-marketing-performance-ads'
     }
   ];
 
+  // 4. Data Dummy: Event 2Go Timeline Schedule
   const event2GoItems = [
     {
+      id: 'spw-superstar',
       date: '28 OKT',
       title: 'SPW Superstar Series: Tokyo Popline',
       desc: 'Live Tour Jakarta Series • Hall A JIEXPO Kemayoran',
-      id: 'spw-superstar'
+      slug: 'spw-superstar-series'
     },
     {
+      id: 'rosetopia-tour',
       date: '02 NOV',
       title: 'ROSETOPIA ASIA TOUR 2024 IN JAKARTA',
       desc: 'Beach City International Stadium Ancol, Jakarta',
-      id: 'rosetopia-tour'
+      slug: 'rosetopia-asia-tour'
     },
     {
+      id: 'podcast-fest-4',
       date: '15 NOV',
       title: 'Indonesian Podcast Fest #4',
       desc: 'Festival Podcast Terbesar se-Indonesia • Senayan Park',
-      id: 'podcast-fest-4'
+      slug: 'indonesian-podcast-fest-4'
     },
     {
+      id: 'neo-kpop-fest',
       date: '21 NOV',
       title: 'NEO KPOP FEST 2024',
       desc: 'Special Lineup Idols Showcase • JIEXPO Grand Ballroom',
-      id: 'neo-kpop-fest'
+      slug: 'neo-kpop-fest-2024'
     },
     {
+      id: 'jung-hae-in-fanmeeting',
       date: '05 DES',
       title: '2024 JUNG HAE IN "OUR TIME" FAN MEETING IN JAKARTA',
       desc: 'The Kasablanka Hall, Jakarta Selatan',
-      id: 'jung-hae-in-fanmeeting'
+      slug: 'jung-hae-in-our-time-fanmeeting'
     }
   ];
 
+  // 5. Data Dummy: Layar Lebar & Teater Pilihan (LOKÉT Screen Posters)
+  const loketScreenMovies = [
+    {
+      id: 'movie-warga-rusun',
+      title: 'Warga Rusun 609',
+      genre: 'Horor Komedi',
+      image: '/images/movie_warga_rusun.png',
+      slug: 'warga-rusun-609'
+    },
+    {
+      id: 'movie-bapak-jujur',
+      title: 'Bapak Paling Jujur',
+      genre: 'Komedi Satir',
+      image: '/images/movie_bapak_jujur.png',
+      slug: 'bapak-paling-jujur'
+    },
+    {
+      id: 'movie-street-fighter',
+      title: 'Street Fighter',
+      genre: 'Aksi & Bela Diri',
+      image: '/images/movie_street_fighter.png',
+      slug: 'street-fighter'
+    }
+  ];
+
+  // 6. Data Dummy: Destinasi Event di Kota
   const cityDestinations = [
-    { name: 'Jakarta', landmark: 'Monas', count: '140+ Event', icon: '🏛️' },
-    { name: 'Bali', landmark: 'Pura Ulun Danu', count: '85+ Event', icon: '⛩️' },
-    { name: 'Bandung', landmark: 'Gedung Sate', count: '62+ Event', icon: '🏢' },
-    { name: 'Yogyakarta', landmark: 'Tugu Jogja', count: '54+ Event', icon: '🗼' },
-    { name: 'Surabaya', landmark: 'Suramadu', count: '48+ Event', icon: '🌉' }
+    { id: 'city-jakarta', name: 'Jakarta', landmark: 'Monas', count: '140+ Event', icon: '🏛️' },
+    { id: 'city-bali', name: 'Bali', landmark: 'Pura Ulun Danu', count: '85+ Event', icon: '⛩️' },
+    { id: 'city-bandung', name: 'Bandung', landmark: 'Gedung Sate', count: '62+ Event', icon: '🏢' },
+    { id: 'city-yogyakarta', name: 'Yogyakarta', landmark: 'Tugu Jogja', count: '54+ Event', icon: '🗼' },
+    { id: 'city-surabaya', name: 'Surabaya', landmark: 'Suramadu', count: '48+ Event', icon: '🌉' }
+  ];
+
+  // 7. Data Dummy: Metode Pembayaran
+  const paymentMethods = [
+    { id: 'pay-bca', name: 'BCA' },
+    { id: 'pay-mandiri', name: 'Mandiri' },
+    { id: 'pay-bri', name: 'BRI' },
+    { id: 'pay-qris', name: 'QRIS' },
+    { id: 'pay-gopay', name: 'GoPay' },
+    { id: 'pay-ovo', name: 'OVO' }
   ];
 
   return (
@@ -274,14 +366,14 @@ const EventList = () => {
 
           <div className="py-12 sm:py-16 md:py-20 px-8 sm:px-14 grid grid-cols-1 md:grid-cols-12 items-center gap-8 relative z-10">
             
-            {/* Left Column: Big Letters YF */}
+            {/* Left Column: Big Letters */}
             <div className="md:col-span-4 flex flex-col items-start justify-center">
               <span className="text-black font-black text-6xl sm:text-7xl lg:text-9xl tracking-tighter leading-none select-none">
-                YF
+                {heroFeaturedEvent.initials}
               </span>
               <div className="mt-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full border border-black/10 text-[11px] font-bold text-neutral-900 tracking-wider uppercase flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                <span>Konser Spesial Terbesar 2024</span>
+                <span>{heroFeaturedEvent.badgeText}</span>
               </div>
             </div>
 
@@ -303,19 +395,21 @@ const EventList = () => {
                 </div>
               </div>
               <span className="text-[10px] tracking-[0.25em] font-extrabold uppercase text-neutral-900 mt-2 bg-black/10 px-3 py-1 rounded">
-                SPECIAL PERFORMANCE
+                {heroFeaturedEvent.subBadge}
               </span>
             </div>
 
             {/* Right Column: Live in Jakarta Typography */}
             <div className="md:col-span-4 flex flex-col items-start md:items-end justify-center text-left md:text-right text-neutral-950">
               <h2 className="font-black text-3xl sm:text-4xl lg:text-5xl leading-[0.95] tracking-tight uppercase">
-                LIVE IN<br />
-                JAKARTA<br />
-                GBK STADIUM
+                {heroFeaturedEvent.titleLines.map((line, idx) => (
+                  <span key={idx} className="block">
+                    {line}
+                  </span>
+                ))}
               </h2>
               <div className="mt-3 text-2xl sm:text-3xl font-black tracking-widest bg-black text-[#EFC936] px-4 py-1 rounded-lg">
-                24.10.26
+                {heroFeaturedEvent.dateCode}
               </div>
             </div>
 
@@ -668,29 +762,16 @@ const EventList = () => {
         {/* Outer scroll wrapper for responsive, strictly matching 1200px layout */}
         <div className="overflow-x-auto pb-4 pt-2">
           <div className="relative flex flex-row items-start gap-4 max-w-[1200px] h-[450px]">
-            {/* Card Poster 1 */}
-            <img 
-              src="/images/movie_warga_rusun.png" 
-              alt="Warga Rusun 609" 
-              onClick={() => navigate('/events/detail')}
-              className="w-[288px] h-[421px] rounded-md object-cover flex-shrink-0 cursor-pointer hover:opacity-95 transition-opacity shadow-sm" 
-            />
-
-            {/* Card Poster 2 */}
-            <img 
-              src="/images/movie_bapak_jujur.png" 
-              alt="Bapak Paling Jujur" 
-              onClick={() => navigate('/events/detail')}
-              className="w-[288px] h-[421px] rounded-md object-cover flex-shrink-0 cursor-pointer hover:opacity-95 transition-opacity shadow-sm" 
-            />
-
-            {/* Card Poster 3 */}
-            <img 
-              src="/images/movie_street_fighter.png" 
-              alt="Street Fighter" 
-              onClick={() => navigate('/events/detail')}
-              className="w-[288px] h-[421px] rounded-md object-cover flex-shrink-0 cursor-pointer hover:opacity-95 transition-opacity shadow-sm" 
-            />
+            {/* Poster Film Terpilih (Rendered via .map dari mock data) */}
+            {loketScreenMovies.map((movie) => (
+              <img 
+                key={movie.id}
+                src={movie.image} 
+                alt={movie.title} 
+                onClick={() => navigate('/events/detail')}
+                className="w-[288px] h-[421px] rounded-md object-cover flex-shrink-0 cursor-pointer hover:opacity-95 transition-opacity shadow-sm" 
+              />
+            ))}
 
             {/* Kotak Promo Ungu (Overlap) */}
             <div 
@@ -827,12 +908,11 @@ const EventList = () => {
                 Metode Pembayaran
               </h4>
               <div className="grid grid-cols-3 gap-2">
-                <div className="bg-neutral-100 rounded px-2 py-1 text-[10px] font-bold text-center">BCA</div>
-                <div className="bg-neutral-100 rounded px-2 py-1 text-[10px] font-bold text-center">Mandiri</div>
-                <div className="bg-neutral-100 rounded px-2 py-1 text-[10px] font-bold text-center">BRI</div>
-                <div className="bg-neutral-100 rounded px-2 py-1 text-[10px] font-bold text-center">QRIS</div>
-                <div className="bg-neutral-100 rounded px-2 py-1 text-[10px] font-bold text-center">GoPay</div>
-                <div className="bg-neutral-100 rounded px-2 py-1 text-[10px] font-bold text-center">OVO</div>
+                {paymentMethods.map((pm) => (
+                  <div key={pm.id} className="bg-neutral-100 rounded px-2 py-1 text-[10px] font-bold text-center">
+                    {pm.name}
+                  </div>
+                ))}
               </div>
             </div>
 

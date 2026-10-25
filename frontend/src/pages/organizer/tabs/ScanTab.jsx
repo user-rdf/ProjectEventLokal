@@ -1,58 +1,59 @@
-import { useEffect, useRef, useState } from "react";
-import { Html5Qrcode } from "html5-qrcode";
-import { checkIn, searchTickets } from "../../../api/checkins";
-import ScanResultSheet from "../../../components/ScanResultSheet";
+import React from 'react';
+import { Camera, ScanLine } from 'lucide-react';
 
-// NOTE: camera access only works on HTTPS or localhost.
-export default function ScanTab({ eventId }) {
-  const [result, setResult] = useState(null);
-  const [cameraError, setCameraError] = useState("");
-  const [q, setQ] = useState("");
-  const [found, setFound] = useState([]);
-  const busy = useRef(false);
-
-  const submitCode = async (code) => {
-    try { setResult(await checkIn(eventId, code)); }
-    catch (e) { setResult({ status: "invalid", message: e.message }); }
-  };
-
-  useEffect(() => {
-    const scanner = new Html5Qrcode("qr-reader");
-    scanner
-      .start({ facingMode: "environment" }, { fps: 10, qrbox: 240 }, (text) => {
-        if (busy.current) return; // ignore frames while a result is showing
-        busy.current = true;
-        submitCode(text);
-      }, () => {})
-      .catch((e) => setCameraError(`Kamera tidak bisa dibuka: ${e}`));
-    return () => {
-      scanner.stop().then(() => scanner.clear()).catch(() => {});
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId]);
-
-  const closeSheet = () => { setResult(null); busy.current = false; };
-  const search = async (e) => {
-    e.preventDefault();
-    try { setFound(await searchTickets(eventId, q)); } catch (ex) { setFound([]); alert(ex.message); }
-  };
-
+const ScanTab = () => {
   return (
-    <>
-      <div id="qr-reader" />
-      {cameraError && <p className="error">{cameraError}</p>}
-      <h2>Cari manual</h2>
-      <form onSubmit={search} style={{ display: "flex", gap: 8 }}>
-        <input placeholder="Nama, email, telepon, atau kode tiket" value={q} onChange={(e) => setQ(e.target.value)} />
-        <button className="btn">Cari</button>
-      </form>
-      {found.map((t) => (
-        <div key={t.code} className="card" style={{ marginTop: 10, display: "flex", justifyContent: "space-between" }}>
-          <span><b>{t.attendee_name}</b> <span className="muted">{t.attendee_email} · {t.status}</span></span>
-          <button className="btn" onClick={() => window.confirm("Check-in manual?") && submitCode(t.code)}>Check-in manual</button>
+    <div className="animate-in fade-in duration-300">
+      {/* Header Tabs Scan */}
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex gap-4 border-b border-gray-200">
+          <button className="pb-2 border-b-2 border-gray-900 font-bold text-gray-900 text-sm">Scan QR</button>
+          <button className="pb-2 text-gray-500 font-medium text-sm hover:text-gray-700">Cari manual</button>
         </div>
-      ))}
-      <ScanResultSheet result={result} onClose={closeSheet} />
-    </>
+        <div className="flex items-center gap-2 text-sm">
+          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+          <span className="font-bold text-gray-900">54 <span className="font-normal text-gray-500">peserta sudah hadir</span></span>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Area Kamera */}
+        <div className="lg:w-2/3 bg-[#0a0f1c] rounded-2xl h-[450px] relative overflow-hidden flex flex-col items-center justify-center">
+          <div className="absolute top-4 left-4 text-white/70 flex items-center gap-2 text-sm bg-black/30 px-3 py-1.5 rounded-lg">
+            <Camera size={16} /> Kamera belakang
+          </div>
+          
+          {/* Overlay Bingkai Scan */}
+          <div className="relative w-64 h-64 mb-8">
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white/80 rounded-tl-xl"></div>
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white/80 rounded-tr-xl"></div>
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white/80 rounded-bl-xl"></div>
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white/80 rounded-br-xl"></div>
+            
+            {/* Garis Scan Animasi (Dummy) */}
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+          </div>
+          
+          <p className="text-white/70 text-sm">Arahkan kamera ke QR di tiket peserta</p>
+
+          <div className="absolute bottom-4 left-4 text-white/40 text-xs flex items-center gap-2">
+             <ScanLine size={14} /> SIMULASI
+          </div>
+        </div>
+
+        {/* Area Hasil */}
+        <div className="lg:w-1/3">
+          <div className="border border-gray-200 rounded-2xl h-full p-8 flex flex-col items-center justify-center text-center bg-white shadow-sm min-h-[200px]">
+            <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-4 border border-gray-100">
+               <ScanLine className="text-gray-400" size={24} />
+            </div>
+            <h3 className="font-bold text-gray-900 mb-1">Menunggu scan</h3>
+            <p className="text-sm text-gray-500">Hasil pemeriksaan tiket akan muncul di sini.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default ScanTab;

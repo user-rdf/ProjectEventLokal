@@ -39,7 +39,7 @@ A modern web platform for event registration, digital QR-code ticketing, and aut
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Docker Compose v2)
 - [Git](https://git-scm.com/)
 
-### 1. Clone & Set Up the Environment
+### 1. Clone the Repository & Set Up the Environment
 ```bash
 git clone <repo-url>
 cd eventlokal
@@ -48,16 +48,18 @@ cp .env.example .env
 
 ### 2. Run with Docker Compose
 
-#### Option A: Build Locally from Source (Recommended)
+#### Option A: Build Locally from Source Code
 ```bash
 docker compose up --build -d
 ```
 
-#### Option B: Use Images from Docker Hub
-To pull the pre-built images directly:
+#### Option B: Use Images from Docker Hub (No Source Code Required)
+
+Choose this option if you want to run the application directly using pre-built images published to Docker Hub, without rebuilding the images locally.
+
+Simply run the following command in your terminal:
+
 ```bash
-docker pull radifmfz/eventlokal-backend:latest
-docker pull radifmfz/eventlokal-frontend:latest
 docker compose up -d
 ```
 

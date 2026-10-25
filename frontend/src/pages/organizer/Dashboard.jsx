@@ -80,7 +80,11 @@ const Dashboard = () => {
               </div>
               
               <div className="flex gap-3">
-                <button className="flex-1 flex items-center justify-center gap-2 border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50">
+                {/* Tombol Scan Tiket Card 1 Diperbarui */}
+                <button 
+                  onClick={() => navigate('/manage-event/101')}
+                  className="flex-1 flex items-center justify-center gap-2 border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50"
+                >
                   <ScanLine size={16} /> Scan tiket
                 </button>
                 <button 
@@ -119,7 +123,11 @@ const Dashboard = () => {
               </div>
               
               <div className="flex gap-3">
-                <button className="flex-1 flex items-center justify-center gap-2 border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50">
+                {/* Tombol Scan Tiket Card 2 Diperbarui */}
+                <button 
+                  onClick={() => navigate('/manage-event/102')}
+                  className="flex-1 flex items-center justify-center gap-2 border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50"
+                >
                   <ScanLine size={16} /> Scan tiket
                 </button>
                 <button 

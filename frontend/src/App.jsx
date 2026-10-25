@@ -8,7 +8,6 @@ import Login from './pages/organizer/Login';
 import TicketSent from './pages/public/TicketSent';
 import Dashboard from './pages/organizer/Dashboard';
 import BuatEvent from './pages/organizer/BuatEvent';
-import ManageEventDetail from './pages/organizer/ManageEventDetail';
 import DaftarPanitia from './pages/organizer/DaftarPanitia';
 
 import Waitlist from './pages/public/Waitlist';

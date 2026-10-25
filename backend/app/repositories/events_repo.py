@@ -37,7 +37,8 @@ def list_public(conn: Connection, q: str | None, price: str | None, category: st
 def _ticket_types(conn: Connection, event_id: UUID) -> list[dict]:
     rows = conn.execute(
         """
-        SELECT id, name, price_idr, quota, sold, (quota - sold) AS remaining
+        SELECT id, name, price_idr, quota, sold, (quota - sold) AS remaining,
+               (SELECT COUNT(*) FROM waitlist_entries w WHERE w.ticket_type_id = ticket_types.id AND w.status = 'waiting') AS waitlist_count
           FROM ticket_types WHERE event_id = %s ORDER BY price_idr, name
         """,
         (event_id,),
@@ -48,8 +49,11 @@ def _ticket_types(conn: Connection, event_id: UUID) -> list[dict]:
 def get_public_by_slug(conn: Connection, slug: str) -> dict | None:
     ev = conn.execute(
         """
-        SELECT id, title, slug, category, description, venue, starts_at, ends_at
-          FROM events WHERE slug = %s AND status = 'published'
+        SELECT e.id, e.title, e.slug, e.category, e.description, e.venue, e.starts_at, e.ends_at,
+               u.name AS organizer_name
+          FROM events e
+          JOIN users u ON u.id = e.organizer_id
+         WHERE e.slug = %s AND e.status = 'published'
         """,
         (slug,),
     ).fetchone()

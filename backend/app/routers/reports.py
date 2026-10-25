@@ -12,10 +12,13 @@ router = APIRouter(prefix="/manage", tags=["manage: reports"],
 
 @router.get("/home")
 def organizer_home(user: dict = Depends(require_organizer)):
-    """Beranda panitia: {ongoing:[{id,title,starts_at,ends_at,registered,checked_in}], upcoming:[...], finished:[...]}.
+    """Beranda panitia: {ongoing:[{id,title,starts_at,ends_at,registered,checked_in}], upcoming:[...], finished:[...], organizer_name: str}.
     'ongoing' = now() BETWEEN starts_at AND ends_at."""
     with get_conn() as conn:
-        return events_repo.organizer_home(conn, user["sub"])
+        res = events_repo.organizer_home(conn, user["sub"])
+        u = conn.execute("SELECT name FROM users WHERE id = %s", (user["sub"],)).fetchone()
+        res["organizer_name"] = u["name"] if u else (user.get("email") or "Panitia")
+        return res
 
 
 @router.get("/events/{event_id}/reports/summary")

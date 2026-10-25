@@ -85,7 +85,7 @@ const BuatEvent = () => {
         }))
       };
 
-      const response = await fetch('http://localhost:8000/api/v1/manage/events', {
+      const response = await fetch('/api/v1/manage/events', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -190,7 +190,7 @@ const BuatEvent = () => {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-sm font-semibold text-gray-700">Poster</label>
-                  <span className="text-xs text-gray-400">Opsional (Belum diimplementasi di backend v1.3)</span>
+                  <span className="text-xs text-gray-400">Opsional</span>
                 </div>
                 <div className="border-2 border-dashed border-gray-300 rounded-xl p-10 flex flex-col items-center justify-center bg-gray-50 text-center">
                   <UploadCloud className="text-gray-400 w-10 h-10 mb-3" />
@@ -326,7 +326,7 @@ const BuatEvent = () => {
         <button 
           onClick={step === 3 ? handleSubmit : () => setStep(step + 1)} 
           disabled={loading}
-          className="px-8 py-2.5 bg-[#014860] text-white font-semibold rounded-lg hover:bg-teal-900 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-8 py-2.5 bg-[#5953C7] text-white font-semibold rounded-lg hover:bg-[#473ebf] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
         >
           {loading ? 'Memproses...' : (step === 3 ? 'Publikasikan' : 'Lanjut')}
         </button>

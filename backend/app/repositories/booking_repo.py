@@ -64,11 +64,13 @@ def get_ticket_email_data(conn: Connection, booking_id: UUID) -> dict | None:
         """
         SELECT b.id AS booking_id, b.status, b.attendee_name, b.attendee_email,
                e.title AS event_title, e.venue, e.starts_at,
-               tt.name AS ticket_type, t.code AS ticket_code
+               tt.name AS ticket_type, COALESCE(t.code, '') AS ticket_code,
+               u.name AS organizer_name
           FROM bookings b
           JOIN events e ON e.id = b.event_id
+          JOIN users u ON u.id = e.organizer_id
           JOIN ticket_types tt ON tt.id = b.ticket_type_id
-          JOIN tickets t ON t.booking_id = b.id
+          LEFT JOIN tickets t ON t.booking_id = b.id
          WHERE b.id = %s
         """,
         (booking_id,),

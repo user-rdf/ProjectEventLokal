@@ -10,3 +10,9 @@ dist/
 # Scratch & temporary test scripts
 backend/_e2e_scratch.py
 *_scratch.*
+
+# Agent configurations & workspace skills
+.agent/
+.agents/
+agents/
+

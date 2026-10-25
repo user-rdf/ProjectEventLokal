@@ -1,115 +1,117 @@
 # EventLokal (EVENT 2 GO) 🎟️
 
-Platform web modern untuk registrasi acara, penerbitan tiket digital dengan kode QR, dan manajemen antrean (*waitlist*) otomatis yang dirancang untuk panitia kampus serta komunitas lokal.
+A modern web platform for event registration, digital QR-code ticketing, and automatic waitlist management, designed for campus organizing committees and local communities.
 
-> **Tugas Akhir Semester**:  
-> - **IK301 Sistem Basis Data Lanjut (Advanced Database Systems)**  
-> - **IK102 Dasar Pengembangan Perangkat Lunak (Software Development Fundamentals)**
-
----
-
-## 🚀 Fitur Utama
-
-- 🎨 **Desain Modern & Responsif**: UI/UX bertema **EVENT 2 GO** (`#5953C7`) menggunakan Tailwind CSS, navigasi intuitif, dan animasi mikro yang halus.
-- ⚡ **Transaksi Registrasi Atomik**: Mencegah *race condition* dan *overselling* kuota tiket dengan row-level locking (`SELECT ... FOR UPDATE`) pada level basis data.
-- 📋 **Antrean Waitlist Otomatis (FIFO)**: Jika tiket habis, peserta dapat bergabung ke daftar tunggu. Saat ada pembatalan tiket (`cancel_booking`), sistem secara otomatis mempromosikan antrean terdepan.
-- 📱 **QR Code Check-in & Scanner**: E-tiket digital dilengkapi kode QR unik anti duplikasi untuk verifikasi kehadiran cepat di pintu masuk acara.
-- 📧 **Pengiriman E-Tiket Email Otomatis**: Integrasi pengiriman email konfirmasi dan lampiran PDF e-tiket via SMTP Mailpit.
-- 📊 **Dashboard Manajemen Panitia**: Pantau metrik pendaftar, tingkat kehadiran real-time, grafik omzet, ekspor data peserta, dan wizard 3 langkah pembuatan event.
+> **Final Semester Project**:  
+> - **IK301 Advanced Database Systems**  
+> - **IK102 Software Development Fundamentals**
 
 ---
 
-## 🛠️ Tech Stack & Arsitektur
+## 🚀 Key Features
 
-| Komponen | Teknologi | Keterangan |
+- 🎨 **Modern & Responsive Design**: **EVENT 2 GO** themed UI/UX (`#5953C7`) built with Tailwind CSS, intuitive navigation, and smooth micro-animations.
+- ⚡ **Atomic Registration Transactions**: Prevents race conditions and ticket quota overselling using row-level locking (`SELECT ... FOR UPDATE`) at the database level.
+- 📋 **Automatic Waitlist (FIFO)**: When tickets sell out, attendees can join a waitlist. When a booking is cancelled (`cancel_booking`), the system automatically promotes the person at the front of the queue.
+- 📱 **QR Code Check-in & Scanner**: Digital e-tickets carry a unique, duplicate-proof QR code for fast attendance verification at the event entrance.
+- 📧 **Automatic E-Ticket Email Delivery**: Sends confirmation emails with a PDF e-ticket attachment via the Mailpit SMTP server.
+- 📊 **Organizer Management Dashboard**: Track registrant metrics, real-time attendance rate, revenue charts, attendee data export, and a 3-step event creation wizard.
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+| Component | Technology | Notes |
 | :--- | :--- | :--- |
-| **Frontend** | React 19, Vite, Tailwind CSS v4, Lucide React | Single Page Application (SPA) modern dan cepat |
-| **Backend API** | FastAPI (Python 3.12), SQLAlchemy, Pydantic v2 | Arsitektur RESTful asynchronous dengan auto OpenAPI docs |
+| **Frontend** | React 19, Vite, Tailwind CSS v4, Lucide React | Modern, fast Single Page Application (SPA) |
+| **Backend API** | FastAPI (Python 3.12), SQLAlchemy, Pydantic v2 | Asynchronous RESTful architecture with auto-generated OpenAPI docs |
 | **Database** | PostgreSQL 16 | UUIDv4, CITEXT, Stored Functions (PL/pgSQL), Triggers, Views, Partial Indexes |
-| **E-Tiket & QR** | ReportLab, QRCodegen | Generator PDF tiket dan QR code resolusi tinggi |
-| **Mail Server** | Mailpit | SMTP testing server & webmail inspector lokal |
-| **Containerization** | Docker & Docker Compose v2 | Multi-stage build terisolasi siap produksi |
+| **E-Ticket & QR** | ReportLab, QRCodegen | High-resolution PDF ticket and QR code generator |
+| **Mail Server** | Mailpit | Local SMTP testing server and webmail inspector |
+| **Containerization** | Docker & Docker Compose v2 | Isolated multi-stage builds, production-ready |
 | **Docker Images** | Docker Hub | `radifmfz/eventlokal-frontend:latest`<br>`radifmfz/eventlokal-backend:latest` |
 
 ---
 
-## 📦 Cara Menjalankan Aplikasi
+## 📦 How to Run the Application
 
-### Prasyarat
+### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Docker Compose v2)
 - [Git](https://git-scm.com/)
 
-### 1. Clone & Setup Environment
+### 1. Clone the Repository & Set Up the Environment
 ```bash
 git clone <repo-url>
 cd eventlokal
 cp .env.example .env
 ```
 
-### 2. Jalankan dengan Docker Compose
+### 2. Run with Docker Compose
 
-#### Opsi A: Build Lokal dari Source Code
+#### Option A: Build Locally from Source Code
 ```bash
 docker compose up --build -d
 ```
 
-#### Opsi B: Menggunakan Image dari Docker Hub (Tanpa Source Code Aplikasi)
+#### Option B: Use Images from Docker Hub (No Source Code Required)
 
-Gunakan opsi ini jika Anda ingin langsung menjalankan aplikasi menggunakan image yang sudah di-push ke cloud tanpa perlu melakukan proses build ulang:
-Cukup jalankan satu perintah ini di terminal
+Choose this option if you want to run the application directly using pre-built images published to Docker Hub, without rebuilding the images locally.
+
+Simply run the following command in your terminal:
+
 ```bash
 docker compose up -d
 ```
 
-### 3. Akses Layanan
+### 3. Access the Services
 
-| Layanan | URL | Keterangan |
+| Service | URL | Notes |
 | :--- | :--- | :--- |
-| **Web App (Frontend)** | [http://localhost:3000](http://localhost:3000) | Antarmuka pengguna EVENT 2 GO |
-| **API Docs (Swagger UI)** | [http://localhost:8000/docs](http://localhost:8000/docs) | Dokumentasi interaktif REST API |
-| **API Alternative (ReDoc)** | [http://localhost:8000/redoc](http://localhost:8000/redoc) | Dokumentasi API format spesifikasi |
-| **Mailpit (Kotak Masuk Email)** | [http://localhost:8025](http://localhost:8025) | Kotak masuk lokal untuk cek e-tiket |
-| **PostgreSQL Database** | `localhost:5433` (internal `5432`) | Koneksi database (User: `eventlokal`) |
+| **Web App (Frontend)** | [http://localhost:3000](http://localhost:3000) | EVENT 2 GO user interface |
+| **API Docs (Swagger UI)** | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive REST API documentation |
+| **API Alternative (ReDoc)** | [http://localhost:8000/redoc](http://localhost:8000/redoc) | API documentation in specification format |
+| **Mailpit (Email Inbox)** | [http://localhost:8025](http://localhost:8025) | Local inbox for checking e-tickets |
+| **PostgreSQL Database** | `localhost:5433` (internal `5432`) | Database connection (User: `eventlokal`) |
 
 ---
 
-## 👥 Akun Demo & Uji Coba
+## 👥 Demo Accounts & Testing
 
-Data awal (*seed*) telah disediakan secara otomatis pada [db/init/04_seed.sql](db/init/04_seed.sql):
+Seed data is provided automatically in [db/init/04_seed.sql](db/init/04_seed.sql):
 
-| Role | Email | Password | Hak Akses |
+| Role | Email | Password | Permissions |
 | :--- | :--- | :--- | :--- |
-| **Penyelenggara (Organizer)** | `organizer@eventlokal.test` | `password123` | Kelola event, buat event baru, lihat laporan, atur waitlist & peserta |
-| **Staf Lapangan (Scanner)** | `staff@eventlokal.test` | `password123` | Akses scanner QR dan verifikasi kehadiran peserta di pintu masuk |
+| **Organizer** | `organizer@eventlokal.test` | `password123` | Manage events, create new events, view reports, manage waitlist & attendees |
+| **Field Staff (Scanner)** | `staff@eventlokal.test` | `password123` | Access the QR scanner and verify attendee check-in at the entrance |
 
-> 💡 *Anda juga dapat mendaftarkan akun panitia baru secara instan melalui halaman `/daftar-panitia`.*
+> 💡 *You can also register a new organizer account instantly via the `/daftar-panitia` page.*
 
 ---
 
-## 🗺️ Peta Rute Aplikasi (Sitemap)
+## 🗺️ Application Route Map (Sitemap)
 
-### Rute Publik
-- `/` — Landing page EVENT 2 GO, hero banner, sorotan event, dan layanan.
-- `/events` — Katalog pencarian dan filter event publik.
-- `/events/:slug` — Halaman detail event, jadwal, venue, dan pemilihan jenis tiket.
-- `/events/:slug/checkout` & `/checkout` — Form checkout registrasi peserta dan konfirmasi pembayaran.
-- `/events/:slug/waitlist` & `/waitlist` — Pendaftaran antrean daftar tunggu jika kuota tiket habis.
-- `/tickets/sent` & `/ticket-sent` — Halaman sukses pendaftaran dengan instruksi e-tiket.
-- `/template-email` — Pratinjau visual template email e-tiket.
+### Public Routes
+- `/` — EVENT 2 GO landing page, hero banner, featured events, and services.
+- `/events` — Public event catalog with search and filters.
+- `/events/:slug` — Event detail page: schedule, venue, and ticket type selection.
+- `/events/:slug/checkout` & `/checkout` — Attendee registration checkout form and payment confirmation.
+- `/events/:slug/waitlist` & `/waitlist` — Waitlist registration when a ticket quota is sold out.
+- `/tickets/sent` & `/ticket-sent` — Registration success page with e-ticket instructions.
+- `/template-email` — Visual preview of the e-ticket email template.
 
-### Rute Panitia & Staf
-- `/login` — Halaman masuk akun panitia / staf.
-- `/daftar-panitia` — Registrasi mandiri akun penyelenggara baru.
-- `/dashboard` — Ringkasan metrik event aktif, event selesai, dan navigasi kelola.
-- `/buat-event` — Wizard 3 langkah pembuatan event baru (Detail, Waktu/Venue, Kategori Tiket).
-- `/manage-event/:id` — Pengelolaan detail event (Tab: Info Event, Peserta & Check-in, Scanner QR Kamera/Manual, Antrean Waitlist, dan Laporan Finansial).
-- `/manage` — *Redirect otomatis* ke `/dashboard`.
+### Organizer & Staff Routes
+- `/login` — Organizer / staff sign-in page.
+- `/daftar-panitia` — Self-registration for new organizer accounts.
+- `/dashboard` — Summary of active events, finished events, and management navigation.
+- `/buat-event` — 3-step event creation wizard (Details, Time/Venue, Ticket Categories).
+- `/manage-event/:id` — Event management (Tabs: Event Info, Attendees & Check-in, QR Scanner via Camera/Manual, Waitlist Queue, and Financial Report).
+- `/manage` — *Automatic redirect* to `/dashboard`.
 
 ---
 
 ## 🗄️ Entity Relationship Diagram (ERD)
 
-Rancangan basis data relasional sistem terdiri dari 9 entitas utama yang saling terhubung dengan integritas referensial ketat:
+The relational database design consists of 9 main entities connected with strict referential integrity:
 
 ```mermaid
 erDiagram
@@ -219,38 +221,38 @@ erDiagram
     }
 ```
 
-> 📖 **Dokumentasi Lengkap Database**:  
-> Lihat [db/erd/README.md](db/erd/README.md) untuk kamus data terperinci, aturan integritas referensial, dan daftar indeks.
+> 📖 **Full Database Documentation**:  
+> See [db/erd/README.md](db/erd/README.md) for the detailed data dictionary, referential integrity rules, and index list.
 
 ---
 
-## 🎯 Fitur Lanjutan Basis Data (IK301)
+## 🎯 Advanced Database Features (IK301)
 
 1. **Row-level Concurrency Lock (`FOR UPDATE`)**:
-   Transaksi checkout dieksekusi di dalam stored function `checkout()`. Saat eksekusi, baris `ticket_types` dikunci secara eksklusif sehingga mencegah dua transaksi paralel menjual kuota tiket yang sama (anti over-selling).
-2. **Promosi Antrean Otomatis (FIFO Queue)**:
-   Stored procedure `cancel_booking()` mempromosikan peserta terdepan dari `waitlist_entries` secara otomatis berdasarkan waktu pendaftaran (`joined_at ASC`), sekaligus menerbitkan tiket baru.
-3. **Partial Indexing Teroptimasi**:
-   - `idx_unique_active_booking_per_event`: Menjamin keunikan email hanya untuk pemesanan yang aktif (`WHERE status IN ('pending', 'confirmed')`).
-   - `idx_waitlist_queue`: Mengoptimasi pencarian antrean aktif (`WHERE status = 'waiting'`) dengan efisiensi $O(\log N)$.
-4. **Audit Trail Otomatis (Triggers)**:
-   Tabel `audit_log` menyimpan riwayat mutasi (`INSERT`, `UPDATE`, `DELETE`) secara transparan beserta data sebelum dan sesudah perubahan dalam format `JSONB`.
+   The checkout transaction runs inside the stored function `checkout()`. During execution, the `ticket_types` row is locked exclusively, so two parallel transactions cannot sell the same ticket quota (anti-overselling).
+2. **Automatic Waitlist Promotion (FIFO Queue)**:
+   The stored procedure `cancel_booking()` automatically promotes the first attendee in `waitlist_entries` based on registration time (`joined_at ASC`), and issues a new ticket at the same time.
+3. **Optimized Partial Indexes**:
+   - `idx_unique_active_booking_per_event`: Guarantees email uniqueness only for active bookings (`WHERE status IN ('pending', 'confirmed')`).
+   - `idx_waitlist_queue`: Speeds up lookups of the active queue (`WHERE status = 'waiting'`) with $O(\log N)$ efficiency.
+4. **Automatic Audit Trail (Triggers)**:
+   The `audit_log` table transparently records the history of mutations (`INSERT`, `UPDATE`, `DELETE`) together with the data before and after each change in `JSONB` format.
 5. **Database Views**:
-   - `v_public_events`: Menghitung batas harga termurah dan total sisa kuota untuk katalog publik.
-   - `v_event_stats`: Agregasi statistik status acara (`upcoming`, `ongoing`, `finished`), jumlah pendaftar, dan tingkat kehadiran.
-   - `v_ticket_type_revenue`: Rekapitulasi omzet per kategori tiket dan analisis kehadiran.
+   - `v_public_events`: Computes the lowest price and total remaining quota for the public catalog.
+   - `v_event_stats`: Aggregates event phase statistics (`upcoming`, `ongoing`, `finished`), registrant counts, and attendance rate.
+   - `v_ticket_type_revenue`: Summarizes revenue per ticket category and attendance analysis.
 
 ---
 
-## 🧪 Menjalankan Pengujian (Automated Testing)
+## 🧪 Running Automated Tests
 
-Seluruh pengujian fungsional backend mencakup pengujian kontrak rute, validasi skema Pydantic, keamanan token, pengiriman email, dan pembuatan QR code:
+The backend functional test suite covers route contract tests, Pydantic schema validation, token security, email sending, and QR code generation:
 
 ```bash
 docker compose exec backend pytest
 ```
 
-Output pengujian:
+Test output:
 ```text
 tests/test_contract_routes.py ..                                         [ 11%]
 tests/test_email_qr.py ....                                              [ 35%]
@@ -263,42 +265,77 @@ tests/test_security.py ..                                                [100%]
 
 ---
 
-## 📂 Struktur Direktori Proyek
+## 📂 Project Directory Structure
 
 ```text
 EventLokal/
 ├── backend/
 │   ├── app/
-│   │   ├── core/           # Konfigurasi, keamanan JWT, dan template email
-│   │   ├── db/             # Koneksi engine PostgreSQL (asyncpg / psycopg)
-│   │   ├── repositories/   # Lapisan akses data (raw SQL & ORM)
-│   │   ├── routers/        # Endpoint API FastAPI (auth, bookings, events, reports, checkins)
-│   │   ├── schemas/        # Validasi Pydantic Request & Response
-│   │   ├── services/       # Business logic, generator PDF e-tiket & email
-│   │   └── main.py         # Entrypoint aplikasi FastAPI
-│   ├── tests/              # Suite pengujian otomatis pytest (17 test cases)
-│   └── Dockerfile          # Multi-stage image backend Python 3.12
+│   │   ├── core/           # Configuration, JWT security, and email templates
+│   │   ├── db/             # PostgreSQL engine connection (asyncpg / psycopg)
+│   │   ├── repositories/   # Data access layer (raw SQL & ORM)
+│   │   ├── routers/        # FastAPI API endpoints (auth, bookings, events, reports, checkins)
+│   │   ├── schemas/        # Pydantic request & response validation
+│   │   ├── services/       # Business logic, e-ticket PDF generator & email
+│   │   └── main.py         # FastAPI application entrypoint
+│   ├── tests/              # Automated pytest suite (17 test cases)
+│   └── Dockerfile          # Multi-stage Python 3.12 backend image
 ├── frontend/
 │   ├── src/
-│   │   ├── api/            # API client Axios/Fetch terintegrasi
-│   │   ├── components/     # Komponen UI (Modal Pembayaran, dsb)
-│   │   ├── pages/          # Halaman aplikasi publik dan manajemen panitia
-│   │   ├── utils/          # Helper pemformatan Rupiah dan tanggal
-│   │   ├── App.jsx         # Konfigurasi rute dan navigasi React Router
+│   │   ├── api/            # Integrated Axios/Fetch API client
+│   │   ├── components/     # UI components (Payment Modal, etc.)
+│   │   ├── pages/          # Public and organizer management pages
+│   │   ├── utils/          # Rupiah and date formatting helpers
+│   │   ├── App.jsx         # React Router routes and navigation configuration
 │   │   └── index.css       # Tailwind CSS v4 styling
-│   ├── nginx.conf          # Konfigurasi Nginx reverse proxy & SPA routing
-│   └── Dockerfile          # Multi-stage build frontend (Vite build + Nginx Alpine)
+│   ├── nginx.conf          # Nginx reverse proxy & SPA routing configuration
+│   └── Dockerfile          # Multi-stage frontend build (Vite build + Nginx Alpine)
 ├── db/
-│   ├── erd/                # Dokumentasi ERD & Kamus Data
-│   ├── init/               # Skrip inisialisasi basis data (schema, functions, views, seed)
-│   └── perf/               # Pengujian performa kueri basis data (EXPLAIN ANALYZE)
-├── docs/                   # Spesifikasi kontrak API dan dokumentasi akademik
-├── docker-compose.yml      # Konfigurasi orkestrasi Docker Compose multi-kontainer
-└── README.md               # Dokumentasi utama proyek
+│   ├── erd/                # ERD documentation & data dictionary
+│   ├── init/               # Database initialization scripts (schema, functions, views, seed)
+│   └── perf/               # Database query performance tests (EXPLAIN ANALYZE)
+├── docs/                   # API contract specification and academic documentation
+├── compose.yaml            # Multi-container Docker Compose orchestration
+└── README.md               # Main project documentation
 ```
 
 ---
 
-## 📄 Lisensi & Hak Cipta
-Dibuat untuk keperluan akademik Tugas Akhir Kuliah Sistem Basis Data Lanjut (IK301) dan Dasar Pengembangan Perangkat Lunak (IK102).
-Hak Cipta © 2024–2026 Tim Pengembang EventLokal (EVENT 2 GO).
+## 🤖 AI Usage
+
+## AI usage
+
+We used AI tools during this project, as allowed by the exam brief.
+Every AI-assisted output was reviewed, tested, and understood by the
+member who owns that part.
+
+### Tools used
+
+| Tool | Version / model | Used by |
+| --- | --- | --- |
+| Claude | [model name] | [member names] |
+| [e.g. GitHub Copilot] | [version] | [member names] |
+
+### What we used AI for
+
+| Area | How AI helped | Owner | What we changed or verified |
+| --- | --- | --- | --- |
+| Pitch deck | Drafted slide structure and wording | Kelompok 9 | Replaced placeholders with our interview data and checked all fee figures against official sites |
+| Backend | [e.g. drafted endpoint boilerplate] | Nizar, Radif | [e.g. wrote and ran tests, fixed error mapping] |
+| Frontend | [e.g. generated component skeletons from Figma] | Farel, Saiful | [e.g. connected to API, fixed layout bugs] |
+| Database | [e.g. reviewed SQL, suggested index strategy] | Nizar, Radif | [e.g. ran EXPLAIN ANALYZE ourselves, kept screenshots] |
+
+### What we did NOT use AI for
+
+- Interviews and survey evidence
+
+### Responsibility
+
+Each member can explain the parts listed under their name. Code we could
+not explain was rewritten or removed.
+
+---
+
+## 📄 License & Copyright
+Made for the academic Final Project of Advanced Database Systems (IK301) and Software Development Fundamentals (IK102).
+Copyright © 2024–2026 EventLokal (EVENT 2 GO) Development Team.

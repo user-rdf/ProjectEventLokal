@@ -1,8 +1,11 @@
+import logging
 import uuid
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from psycopg import errors as psycopg_errors
+
+logger = logging.getLogger(__name__)
 
 # Pemetaan SQLSTATE ke HTTP Status Code sesuai Kontrak API v1.2
 SQLSTATE_MAP = {
@@ -29,13 +32,19 @@ async def database_exception_handler(request: Request, exc: Exception):
         if hasattr(exc, "diag") and exc.diag.message_primary:
             db_message = exc.diag.message_primary
             
+        if sqlstate not in SQLSTATE_MAP:
+            logger.error("Database error %s: %s", sqlstate, exc)
+            db_message = ""
+        elif sqlstate == "EL006" and "sudah dibatalkan" in db_message:
+            status_code = 409
+
         return JSONResponse(
             status_code=status_code,
             content={
                 "error": {
-                    "code": sqlstate,
+                    "code": sqlstate if sqlstate in SQLSTATE_MAP else "UNKNOWN",
                     "message": db_message if db_message else default_msg,
-                    "details": str(exc),
+                    "details": None,
                     "request_id": str(uuid.uuid4())
                 }
             }

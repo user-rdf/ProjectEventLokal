@@ -6,11 +6,9 @@ from fastapi.exceptions import RequestValidationError
 
 from app.core.errors import database_exception_handler, validation_exception_handler
 from app.db.pool import close_pool, get_conn, init_pool
-from app.routers import (attendees, auth, bookings, checkins, manage_events,
-                         public_events, reports)
 
 from app.routers import (attendees, auth, bookings, checkins, manage_events,
-                            public_events, reports, waitlist) # <-- Tambahkan waitlist di sini
+                            public_events, reports, waitlist)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,7 +36,7 @@ def health():
     return {"status": "ok"}
 
 
-@api.get("/health/db", tags=["health"])
+@api.get("/health/db", tags=["health"], include_in_schema=False)
 def health_db():
     with get_conn() as conn:
         row = conn.execute("SELECT version() AS v").fetchone()

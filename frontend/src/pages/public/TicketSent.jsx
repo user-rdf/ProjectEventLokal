@@ -28,69 +28,60 @@ export default function TicketSent() {
   // MOCK DATA (API-READY: Mudah dihubungkan dengan API response backend)
   // =========================================================================
   const mockData = {
-    orderId: stateData.orderId || '#23L-YF26-8819',
+    orderId: stateData.orderId || '#EL-TK8819',
     status: 'LUNAS & TERVERIFIKASI',
-    issuedAt: stateData.issuedAt || '24 Mei 2026 • 14:32:08 WIB',
+    issuedAt: stateData.issuedAt || new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) + ' WIB',
     event: {
-      title: stateData.eventTitle || 'YF LIVE IN JAKARTA — GBK STADIUM 2026',
-      tourName: 'WORLD TOUR 2026',
-      ticketCategory: stateData.ticketCategory || 'VIP SOUNDCHECK',
+      title: stateData.eventTitle || 'Seminar Karier Teknologi & Startup',
+      tourName: 'EVENT KAMPUS RESMI',
+      ticketCategory: stateData.ticketCategory || 'Reguler / Mahasiswa',
       passType: 'OFFICIAL E-PASS',
-      dateTime: 'Sabtu, 24 Okt 2026',
-      doorOpen: 'Pintu Buka 16:00 WIB',
-      venueName: 'GBK Main Stadium',
-      venueAddress: 'Senayan, Jakarta Pusat',
-      gate: 'B',
-      section: '01',
-      row: '04',
-      seat: '28',
-      ticketId: '23L-YF26-8819-VIPS',
-      authenticatedBy: 'AUTHENTICATED BY EVENT2 GO',
-      coverImage: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=800&q=80'
+      dateTime: stateData.dateTime || 'Sabtu, 31 Okt 2026',
+      doorOpen: 'Pintu Buka 1 Jam Sebelum Acara',
+      venueName: stateData.venueName || 'Aula Utama Gedung Rektorat Lt. 3',
+      venueAddress: 'Area Kampus Terverifikasi',
+      gate: 'A',
+      section: 'UTAMA',
+      row: '01',
+      seat: 'PASS',
+      ticketId: stateData.orderId || 'TK-EL8819',
+      authenticatedBy: 'AUTHENTICATED BY EVENT 2 GO',
+      coverImage: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80'
     },
     delivery: {
-      status: 'Terkirim (14:32 WIB)',
-      email: stateData.email || 'raditya.mahendra@gmail.com'
+      status: 'Terkirim via Email',
+      email: stateData.email || 'peserta@eventlokal.test'
     },
+    buyerName: stateData.fullName || 'Peserta Terdaftar',
     guides: [
       {
         id: 1,
-        title: 'Check-in Mandiri & Penukaran Wristband',
-        desc: 'Pemegang tiket VIP Soundcheck berhak masuk lebih awal. Penukaran wristband dibuka pukul 15.00 WIB di Gate B sebelum sesi soundcheck resmi dimulai pukul 16.30 WIB.'
+        title: 'Check-in Mandiri & Verifikasi Barcode',
+        desc: `Tunjukkan QR code tiket ini pada staf scanner panitia di ${stateData.venueName || 'lokasi acara'} saat memasuki pintu masuk.`
       },
       {
         id: 2,
-        title: 'Folder Spam atau Promosi',
-        desc: 'Jika email tiket belum masuk dalam kurun 5 menit, periksa folder Spam atau Tab Promosi pada Gmail/email Anda, lalu tandai email dari Twenty Three Layers sebagai "Bukan Spam".'
+        title: 'Folder Email & Inbox',
+        desc: `Salinan resmi e-tiket telah dikirimkan ke alamat email ${stateData.email || 'peserta@eventlokal.test'}. Periksa kotak masuk atau Mailpit Anda.`
       },
       {
         id: 3,
-        title: 'Syarat Identitas Masuk Venue',
-        desc: 'Wajib membawa kartu identitas fisik resmi (KTP / SIM / Paspor) yang namanya sesuai dengan pemesan tertera: Raditya Mahendra.'
+        title: 'Syarat Identitas Peserta',
+        desc: `Nama pada tiket terdaftar: ${stateData.fullName || 'Peserta Terdaftar'}. Bawa kartu identitas (KTM / KTP) jika diperlukan validasi.`
       }
     ],
     payment: {
-      methodBadge: 'LUNAS VIA QRIS INSTAN',
+      methodBadge: stateData.total === 0 ? 'GRATIS / BEBAS BIAYA' : 'LUNAS VIA QRIS / TRANSFER',
       items: [
         {
-          name: '1x VIP Soundcheck & Festival (Seat Row 04 / 28)',
-          amount: 1500000,
-          amountFormatted: 'Rp 1.500.000'
-        },
-        {
-          name: 'Biaya Layanan Platform & Penerbitan Digital',
-          amount: 25000,
-          amountFormatted: 'Rp 25.000'
-        },
-        {
-          name: 'Pajak Hiburan Daerah (10%)',
-          amount: 150000,
-          amountFormatted: 'Rp 150.000'
+          name: `1x Tiket ${stateData.ticketCategory || 'Reguler'}`,
+          amount: stateData.total || 0,
+          amountFormatted: stateData.totalFormatted || 'Rp 0'
         }
       ],
-      total: stateData.total || 1675000,
-      totalFormatted: stateData.totalFormatted || 'Rp 1.675.000',
-      refId: 'QRIS-881923-JKT'
+      total: stateData.total || 0,
+      totalFormatted: stateData.totalFormatted || (stateData.total === 0 ? 'Gratis' : 'Rp 0'),
+      refId: stateData.orderId || 'TRX-EL-8819'
     }
   };
 
@@ -147,14 +138,16 @@ export default function TicketSent() {
           <div className="flex items-center gap-3">
             <div
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 cursor-pointer select-none group"
+              className="flex items-center cursor-pointer select-none group"
             >
-              <span className="text-lg font-black tracking-tight text-neutral-900 group-hover:text-[#5046B8] transition-colors">
-                23. EVENTS
-              </span>
+              <img
+                src="/images/Logo logo_EVENT2 GO.png"
+                alt="EVENT 2 GO"
+                className="h-8 w-auto object-contain group-hover:scale-105 transition-transform"
+              />
             </div>
             <div className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-100 text-neutral-600 border border-gray-200/60">
-              TWENTY THREE LAYERS
+              OFFICIAL E-TICKET
             </div>
           </div>
 
@@ -538,8 +531,8 @@ export default function TicketSent() {
       <footer className="w-full bg-[#F8F9FA] border-t border-gray-200/80 py-6 text-xs text-neutral-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-black text-neutral-800">23.</span>
-            <span>© 2026 Twenty Three Layers Inc. All Rights Reserved. Curated Cultural Ticketing.</span>
+            <img src="/images/Logo logo_EVENT2 GO.png" alt="EVENT 2 GO" className="h-5 w-auto object-contain" />
+            <span>© {new Date().getFullYear()} EVENT 2 GO. All Rights Reserved. Platform Pendaftaran & Manajemen Event Kampus.</span>
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
@@ -581,7 +574,7 @@ export default function TicketSent() {
 
             {/* Email Meta Info */}
             <div className="bg-gray-50 rounded-xl p-3 text-xs text-neutral-600 space-y-1 my-4">
-              <p><strong>Dari:</strong> ticketing@twentythreelayers.com (Twenty Three Layers)</p>
+              <p><strong>Dari:</strong> ticketing@event2go.test (EVENT 2 GO Official)</p>
               <p><strong>Kepada:</strong> {mockData.delivery.email}</p>
               <p><strong>Subjek:</strong> [CONFIRMED] Official E-Pass {mockData.event.title} - Order {mockData.orderId}</p>
             </div>

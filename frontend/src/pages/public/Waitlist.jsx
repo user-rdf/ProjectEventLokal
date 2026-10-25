@@ -14,7 +14,7 @@ export default function Waitlist() {
     e.preventDefault();
     setErr("");
     try {
-      await joinWaitlist({ ticket_type_id: Number(params.get("ticket")), attendee_name: form.name, attendee_email: form.email, attendee_phone: form.phone });
+      await joinWaitlist({ ticket_type_id: params.get("ticket"), attendee_name: form.name, attendee_email: form.email, attendee_phone: form.phone });
       setDone(true);
     } catch (ex) { setErr(ex.message); }
   };

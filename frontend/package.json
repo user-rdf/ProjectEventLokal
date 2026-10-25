@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "html5-qrcode": "^2.3.8",
     "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^1.61.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

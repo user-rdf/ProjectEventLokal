@@ -20,10 +20,11 @@ CREATE TABLE users (
 
 CREATE TABLE events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    organizer_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    organizer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     category VARCHAR(100) NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
     venue TEXT NOT NULL,
     starts_at TIMESTAMPTZ NOT NULL,
     ends_at TIMESTAMPTZ NOT NULL,
@@ -31,21 +32,24 @@ CREATE TABLE events (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT chk_event_time CHECK (ends_at > starts_at)
 );
+CREATE INDEX idx_events_organizer ON events(organizer_id);
+CREATE INDEX idx_events_status_starts ON events(status, starts_at);
 
 CREATE TABLE ticket_types (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     price_idr INTEGER NOT NULL DEFAULT 0,
     quota INTEGER NOT NULL CHECK (quota > 0),
     sold INTEGER NOT NULL DEFAULT 0 CHECK (sold <= quota),
     CONSTRAINT chk_price CHECK (price_idr >= 0)
 );
+CREATE INDEX idx_ticket_types_event ON ticket_types(event_id);
 
 CREATE TABLE bookings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-    ticket_type_id UUID REFERENCES ticket_types(id) ON DELETE RESTRICT,
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    ticket_type_id UUID NOT NULL REFERENCES ticket_types(id) ON DELETE RESTRICT,
     attendee_name VARCHAR(100) NOT NULL,
     attendee_email CITEXT NOT NULL,
     attendee_phone VARCHAR(20) NOT NULL,
@@ -56,6 +60,8 @@ CREATE TABLE bookings (
 -- Unik email per event untuk booking yang aktif
 CREATE UNIQUE INDEX idx_unique_active_booking_per_event 
 ON bookings(event_id, attendee_email) WHERE status IN ('pending', 'confirmed');
+CREATE INDEX idx_bookings_event_created ON bookings(event_id, created_at DESC);
+CREATE INDEX idx_bookings_ticket_type ON bookings(ticket_type_id);
 
 CREATE TABLE payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -75,7 +81,7 @@ CREATE TABLE tickets (
 
 CREATE TABLE waitlist_entries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    ticket_type_id UUID REFERENCES ticket_types(id) ON DELETE CASCADE,
+    ticket_type_id UUID NOT NULL REFERENCES ticket_types(id) ON DELETE CASCADE,
     attendee_name VARCHAR(100) NOT NULL,
     attendee_email CITEXT NOT NULL,
     attendee_phone VARCHAR(20) NOT NULL,
@@ -85,11 +91,13 @@ CREATE TABLE waitlist_entries (
 );
 CREATE UNIQUE INDEX idx_unique_waitlist_per_ticket_type 
 ON waitlist_entries(ticket_type_id, attendee_email) WHERE status = 'waiting';
+-- Antrean FIFO untuk promosi di cancel_booking
+CREATE INDEX idx_waitlist_queue ON waitlist_entries(ticket_type_id, joined_at) WHERE status = 'waiting';
 
 CREATE TABLE check_ins (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    ticket_id UUID UNIQUE REFERENCES tickets(id) ON DELETE RESTRICT,
-    event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    ticket_id UUID NOT NULL UNIQUE REFERENCES tickets(id) ON DELETE RESTRICT,
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
     checked_in_at TIMESTAMPTZ DEFAULT NOW(),
     staff_id UUID REFERENCES users(id) ON DELETE SET NULL
 );

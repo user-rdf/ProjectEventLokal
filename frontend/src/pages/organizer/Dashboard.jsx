@@ -35,14 +35,23 @@ const Dashboard = () => {
             <p className="text-gray-500 mb-1">Halo, Nabila</p>
             <h1 className="text-3xl font-bold text-gray-900">Beranda Panitia</h1>
           </div>
-          {/* Tombol Navigasi ke Halaman Buat Event */}
-          <button 
-            onClick={() => navigate('/buat-event')}
-            className="mt-4 md:mt-0 flex items-center gap-2 bg-[#014860] text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-teal-900 transition-colors"
-          >
-            <Plus size={20} />
-            Buat Event
-          </button>
+          {/* Tombol Navigasi ke Halaman Buat Event & Template Email */}
+          <div className="flex items-center gap-3 mt-4 md:mt-0">
+            <button 
+              onClick={() => navigate('/template-email')}
+              className="flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg font-semibold hover:bg-gray-50 transition-colors cursor-pointer text-sm"
+            >
+              <Mail size={16} />
+              Template Email
+            </button>
+            <button 
+              onClick={() => navigate('/buat-event')}
+              className="flex items-center gap-2 bg-[#5953C7] text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-[#473ebf] transition-colors cursor-pointer text-sm shadow-sm"
+            >
+              <Plus size={18} />
+              Buat Event
+            </button>
+          </div>
         </div>
 
         {/* Section: Sedang Berlangsung */}
@@ -84,8 +93,8 @@ const Dashboard = () => {
                   <ScanLine size={16} /> Scan tiket
                 </button>
                 <button 
-                  onClick={() => navigate('/manage-event/101')}
-                  className="flex-1 bg-[#014860] text-white py-2 rounded-lg font-semibold text-sm hover:bg-teal-900"
+                  onClick={() => navigate('/manage-event/d5f1bde7-7265-463d-a68c-d5923f0c56b7')}
+                  className="flex-1 bg-[#5953C7] text-white py-2 rounded-lg font-semibold text-sm hover:bg-[#473ebf] transition-colors cursor-pointer"
                 >
                   Buka
                 </button>
@@ -103,7 +112,7 @@ const Dashboard = () => {
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
                     <span className="text-xs text-green-600 font-semibold">Live</span>
                   </div>
-                  <h3 className="font-bold text-gray-900 leading-tight">Seminar Nasional: AI untuk Pendidikan Indonesia</h3>
+                  <h3 className="font-bold text-gray-900 leading-tight">Seminar Karier Teknologi &amp; Startup</h3>
                   <p className="text-xs text-gray-500 mt-1">Hari ini, 08.30-12.00 WIB</p>
                 </div>
               </div>
@@ -111,10 +120,10 @@ const Dashboard = () => {
               <div className="mb-4">
                 <div className="flex justify-between text-sm mb-1">
                   <span className="font-bold text-gray-900">120 <span className="text-gray-500 font-normal">dari 300 hadir</span></span>
-                  <span className="font-bold text-[#014860]">40%</span>
+                  <span className="font-bold text-[#5953C7]">40%</span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-2">
-                  <div className="bg-[#014860] h-2 rounded-full" style={{ width: '40%' }}></div>
+                  <div className="bg-[#5953C7] h-2 rounded-full" style={{ width: '40%' }}></div>
                 </div>
               </div>
               
@@ -123,8 +132,8 @@ const Dashboard = () => {
                   <ScanLine size={16} /> Scan tiket
                 </button>
                 <button 
-                  onClick={() => navigate('/manage-event/102')}
-                  className="flex-1 bg-[#014860] text-white py-2 rounded-lg font-semibold text-sm hover:bg-teal-900"
+                  onClick={() => navigate('/manage-event/4fb1d1e2-34ad-4fd2-b0b6-81d5ad934513')}
+                  className="flex-1 bg-[#5953C7] text-white py-2 rounded-lg font-semibold text-sm hover:bg-[#473ebf] transition-colors cursor-pointer"
                 >
                   Buka
                 </button>

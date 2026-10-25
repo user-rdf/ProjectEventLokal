@@ -20,19 +20,22 @@ class QuotaExceeded(Exception):
     """Raised when a ticket type is sold out (the API then offers the waitlist)."""
 
 
-def send_ticket_email(data: dict, subject: str | None = None) -> None:
+def send_ticket_email(data: dict, subject: str | None = None, is_cancelled: bool = False) -> None:
     """Kirim email tiket. Dipanggil SETELAH commit; kegagalan hanya di-log
     (peserta tetap terdaftar dan panitia bisa 'kirim ulang tiket')."""
     try:
+        when_str = data["starts_at"].strftime("%d %b %Y %H:%M WIB") if hasattr(data.get("starts_at"), "strftime") else str(data.get("starts_at", ""))
         msg = build_ticket_message(
             to_email=data["attendee_email"],
             attendee_name=data["attendee_name"],
             event_title=data["event_title"],
-            when=data["starts_at"].strftime("%d %b %Y %H:%M UTC"),
-            venue=data["venue"],
-            ticket_type=data["ticket_type"],
-            ticket_code=data["ticket_code"],
+            when=when_str,
+            venue=data.get("venue", ""),
+            ticket_type=data.get("ticket_type", "Reguler"),
+            ticket_code=data.get("ticket_code", ""),
             subject=subject,
+            organizer_name=data.get("organizer_name") or "Panitia Acara",
+            is_cancelled=is_cancelled,
         )
         send_message(msg)
     except Exception:  # noqa: BLE001 - email must never break the request

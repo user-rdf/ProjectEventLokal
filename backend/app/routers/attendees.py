@@ -46,11 +46,22 @@ def list_waitlist(
 def cancel_booking(booking_id: UUID, background: BackgroundTasks, user: dict = Depends(require_organizer)):
     """Panitia membatalkan booking. DB otomatis menaikkan antrean tertua menjadi booking baru;
     orang yang naik dikirimi email tiket setelah commit."""
+    with get_conn() as conn:
+        cancelled_email = booking_repo.get_ticket_email_data(conn, booking_id)
+
     result, promoted_email = booking_service.cancel_booking(booking_id, user["sub"])
+    if cancelled_email:
+        background.add_task(
+            booking_service.send_ticket_email,
+            cancelled_email,
+            f"Pendaftaran dibatalkan: {cancelled_email['event_title']}",
+            is_cancelled=True,
+        )
     if promoted_email:
         background.add_task(
-            booking_service.send_ticket_email, promoted_email,
-            f"Kamu mendapat tiket: {promoted_email['event_title']}",
+            booking_service.send_ticket_email,
+            promoted_email,
+            f"Kamu mendapat tiket! {promoted_email['event_title']}",
         )
     return {
         "booking_id": result["booking_id"],

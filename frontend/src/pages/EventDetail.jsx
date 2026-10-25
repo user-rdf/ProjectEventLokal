@@ -415,7 +415,12 @@ const EventDetail = () => {
               <button 
                 onClick={() => {
                   if (currentTier?.quota === 0) {
-                    navigate(`/events/${eventSlug}/waitlist?ticket=${currentTier.id}`);
+                    navigate(`/events/${eventSlug}/waitlist?ticket=${currentTier.id}`, {
+                      state: {
+                        event: backendEvent,
+                        selectedTicket: currentTier
+                      }
+                    });
                   } else {
                     navigate(`/events/${eventSlug}/checkout`, {
                       state: {

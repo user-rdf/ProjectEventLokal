@@ -10,6 +10,7 @@ import Dashboard from './pages/organizer/Dashboard';
 import BuatEvent from './pages/organizer/BuatEvent';
 import ManageEventDetail from './pages/organizer/ManageEventDetail';
 import DaftarPanitia from './pages/organizer/DaftarPanitia';
+import TemplateEmail from './pages/TemplateEmail';
 
 import Waitlist from './pages/public/Waitlist';
 
@@ -33,6 +34,7 @@ function App() {
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/tickets/sent" element={<TicketSent />} />
       <Route path="/ticket-sent" element={<TicketSent />} />
+      <Route path="/template-email" element={<TemplateEmail />} />
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/buat-event" element={<BuatEvent />} />

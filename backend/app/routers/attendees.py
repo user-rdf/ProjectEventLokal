@@ -1,86 +1,69 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Query
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+
 from app.core.security import require_organizer
 from app.db.pool import get_conn
+from app.repositories import booking_repo, events_repo
+from app.services import booking_service
 
 router = APIRouter(prefix="/manage", tags=["manage: attendees"],
                    dependencies=[Depends(require_organizer)])
 
 
+def _assert_owner(conn, event_id: UUID, user: dict) -> None:
+    if not events_repo.is_owned(conn, event_id, user["sub"]):
+        raise HTTPException(status_code=404, detail="Event tidak ditemukan")
+
+
 @router.get("/events/{event_id}/attendees")
 def list_attendees(
-    event_id: UUID, 
+    event_id: UUID,
     page: int = Query(default=1, ge=1, description="Nomor halaman (mulai dari 1)"),
-    limit: int = Query(default=20, ge=1, le=100, description="Jumlah data per halaman (maks 100)")
+    per_page: int = Query(default=100, ge=1, le=200, description="Jumlah data per halaman (maks 200)"),
+    user: dict = Depends(require_organizer),
 ):
-    """Mendapatkan daftar peserta dengan pagination."""
-    offset = (page - 1) * limit
-    
+    """Daftar peserta (paginasi)."""
     with get_conn() as conn:
-        rows = conn.execute("""
-            SELECT 
-                b.id as booking_id, 
-                b.attendee_name, 
-                b.attendee_email, 
-                b.attendee_phone,
-                b.status,
-                t.code as ticket_code,
-                tt.name as ticket_type
-            FROM bookings b
-            LEFT JOIN tickets t ON t.booking_id = b.id
-            LEFT JOIN ticket_types tt ON b.ticket_type_id = tt.id
-            WHERE b.event_id = %s::uuid
-            ORDER BY b.created_at DESC
-            LIMIT %s OFFSET %s
-        """, (event_id, limit, offset)).fetchall()
-        
-        return [dict(row) for row in rows]
+        _assert_owner(conn, event_id, user)
+        return booking_repo.list_attendees(conn, event_id, per_page, (page - 1) * per_page)
 
 
 @router.get("/events/{event_id}/waitlist")
 def list_waitlist(
     event_id: UUID,
     page: int = Query(default=1, ge=1, description="Nomor halaman (mulai dari 1)"),
-    limit: int = Query(default=20, ge=1, le=100, description="Jumlah data per halaman (maks 100)")
+    per_page: int = Query(default=100, ge=1, le=200, description="Jumlah data per halaman (maks 200)"),
+    user: dict = Depends(require_organizer),
 ):
-    """Mendapatkan daftar tunggu dengan pagination."""
-    offset = (page - 1) * limit
-    
+    """Antrean daftar tunggu (paginasi)."""
     with get_conn() as conn:
-        rows = conn.execute("""
-            SELECT 
-                w.id, 
-                w.attendee_name, 
-                w.attendee_email, 
-                w.attendee_phone,
-                w.status,
-                w.created_at,
-                tt.name as ticket_type
-            FROM waitlist_entries w
-            JOIN ticket_types tt ON w.ticket_type_id = tt.id
-            WHERE tt.event_id = %s::uuid
-            ORDER BY w.created_at ASC
-            LIMIT %s OFFSET %s
-        """, (event_id, limit, offset)).fetchall()
-        
-        return [dict(row) for row in rows]
+        _assert_owner(conn, event_id, user)
+        return booking_repo.list_waitlist(conn, event_id, per_page, (page - 1) * per_page)
+
+
+@router.post("/bookings/{booking_id}/cancel")
+def cancel_booking(booking_id: UUID, background: BackgroundTasks, user: dict = Depends(require_organizer)):
+    """Panitia membatalkan booking. DB otomatis menaikkan antrean tertua menjadi booking baru;
+    orang yang naik dikirimi email tiket setelah commit."""
+    result, promoted_email = booking_service.cancel_booking(booking_id, user["sub"])
+    if promoted_email:
+        background.add_task(
+            booking_service.send_ticket_email, promoted_email,
+            f"Kamu mendapat tiket: {promoted_email['event_title']}",
+        )
+    return {
+        "booking_id": result["booking_id"],
+        "status": result["status"],
+        "promoted": bool(promoted_email),
+        "message": "Pendaftaran dibatalkan."
+                   + (" Peserta dari daftar tunggu sudah naik dan dikirimi tiket." if promoted_email else ""),
+    }
 
 
 @router.post("/bookings/{booking_id}/resend-ticket")
-def resend_ticket(booking_id: UUID):
+def resend_ticket(booking_id: UUID, background: BackgroundTasks, user: dict = Depends(require_organizer)):
     """Mengirim ulang email tiket ke peserta."""
-    with get_conn() as conn:
-        row = conn.execute(
-            "SELECT id, attendee_email, status FROM bookings WHERE id = %s::uuid", 
-            (booking_id,)
-        ).fetchone()
-        
-        if not row:
-            raise HTTPException(status_code=404, detail="Booking tidak ditemukan")
-            
-        if row["status"] != "confirmed":
-            raise HTTPException(status_code=400, detail="Hanya booking yang dikonfirmasi yang bisa dikirim ulang")
-
-        return {
-            "message": f"Email tiket berhasil dikirim ulang ke {row['attendee_email']}"
-        }
+    data = booking_service.resend_ticket(booking_id, user["sub"])
+    background.add_task(booking_service.send_ticket_email, data)
+    return {"message": f"Email tiket dikirim ulang ke {data['attendee_email']}"}

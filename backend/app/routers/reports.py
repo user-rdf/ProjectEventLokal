@@ -1,21 +1,28 @@
-from fastapi import APIRouter, Depends
+from uuid import UUID
 
-from app.core.errors import not_implemented
+from fastapi import APIRouter, Depends, HTTPException
+
 from app.core.security import require_organizer
+from app.db.pool import get_conn
+from app.repositories import events_repo, reports_repo
 
 router = APIRouter(prefix="/manage", tags=["manage: reports"],
                    dependencies=[Depends(require_organizer)])
 
 
 @router.get("/home")
-def organizer_home():
-    """Beranda panitia: {ongoing:[{id,title,starts_at,ends_at,registered,checked_in}],
-    upcoming:[...], finished:[...]}. 'ongoing' = now() BETWEEN starts_at AND ends_at."""
-    raise not_implemented()
+def organizer_home(user: dict = Depends(require_organizer)):
+    """Beranda panitia: {ongoing:[{id,title,starts_at,ends_at,registered,checked_in}], upcoming:[...], finished:[...]}.
+    'ongoing' = now() BETWEEN starts_at AND ends_at."""
+    with get_conn() as conn:
+        return events_repo.organizer_home(conn, user["sub"])
 
 
 @router.get("/events/{event_id}/reports/summary")
-def report_summary(event_id: int):
+def report_summary(event_id: UUID, user: dict = Depends(require_organizer)):
     """{registered, attended, attendance_rate, revenue_by_ticket_type:[{name,sold,revenue}]}
     (JOIN + GROUP BY: this is the IK301 analytics query)."""
-    raise not_implemented()
+    with get_conn() as conn:
+        if not events_repo.is_owned(conn, event_id, user["sub"]):
+            raise HTTPException(status_code=404, detail="Event tidak ditemukan")
+        return reports_repo.summary(conn, event_id)

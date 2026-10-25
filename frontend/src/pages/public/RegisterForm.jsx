@@ -24,7 +24,7 @@ export default function RegisterForm() {
     if (!form.consent) return setErr("Centang persetujuan data terlebih dahulu");
     setBusy(true);
     try {
-      await createBooking({ ticket_type_id: Number(form.ticket), attendee_name: form.name, attendee_email: form.email, attendee_phone: form.phone });
+      await createBooking({ ticket_type_id: form.ticket, attendee_name: form.name, attendee_email: form.email, attendee_phone: form.phone });
       navigate("/tickets/sent", { state: { email: form.email } });
     } catch (ex) {
       setErr(ex.status === 409 ? "Kuota habis. Kamu bisa masuk daftar tunggu." : ex.message);

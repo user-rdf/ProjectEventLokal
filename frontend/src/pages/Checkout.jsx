@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -21,48 +21,64 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import PaymentMethodModal from '../components/PaymentMethodModal';
+import { createBooking } from '../api/bookings';
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const passedEvent = location.state?.event;
+  const passedTicket = location.state?.selectedTicket;
+  const passedQuantity = location.state?.quantity || 1;
 
-  // =========================================================================
-  // DUMMY / MOCK DATA (API-READY: Mudah dihubungkan dengan API backend/EventDetail)
-  // =========================================================================
-
-  // Data Event
-  const eventData = {
-    id: 'yf-live-2026',
-    code: 'Order ID: #23L-YF26-8819',
-    title: 'YF LIVE IN JAKARTA 2026',
-    badge: 'KONSER TUNGGAL TOP 2026',
-    dateTime: 'Sabtu, 24 Oktober 2026 • 19:30 WIB',
-    venue: 'GELORA BUNG KARNO (GBK) STADIUM, JAKARTA',
-    gate: 'Pintu Utama',
-    posterUrl: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?auto=format&fit=crop&w=800&q=80',
-    organizer: 'Twenty Three Layers'
+  // Fallback default data
+  const defaultEventData = {
+    id: 'event2go-default',
+    code: 'EVENT 2 GO TRANSACTION',
+    title: 'Pendaftaran Event Kampus',
+    badge: 'EVENT RESMI',
+    dateTime: 'Waktu Pelaksanaan Event',
+    venue: 'Lokasi Kampus Terdaftar',
+    gate: 'Pintu Masuk Utama',
+    posterUrl: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80',
+    organizer: 'EVENT 2 GO'
   };
 
-  // Tiket Terpilih (Diasumsikan sudah dipilih user di halaman sebelumnya)
-  const [selectedTicket, setSelectedTicket] = useState({
-    id: 'vip',
-    title: 'VIP Soundcheck & Festival',
-    price: 1500000,
-    priceFormatted: 'Rp 1.500.000',
+  const defaultTicket = {
+    id: 'reguler',
+    title: 'Tiket Peserta',
+    name: 'Tiket Peserta',
+    price: 0,
+    priceFormatted: 'Gratis',
     unit: '/ tiket',
-    desc: 'Akses soundcheck eksklusif, gelang khusus VIP, lanyard edisi terbatas, & antrean prioritas gate.',
-    tag: 'Free Standing',
+    desc: 'Akses masuk kegiatan resmi dengan QR code digital terenkripsi.',
+    tag: 'Akses Masuk',
     badge: 'TIKET TERPILIH'
-  });
+  };
 
-  // State Kuantitas & Form
-  const [quantity, setQuantity] = useState(1);
+  const eventData = passedEvent ? {
+    id: passedEvent.id,
+    slug: passedEvent.slug,
+    code: `Event: ${passedEvent.title}`,
+    title: passedEvent.title,
+    badge: passedEvent.category?.toUpperCase() || 'EVENT KAMPUS',
+    dateTime: passedEvent.dateTime,
+    venue: passedEvent.venue,
+    gate: 'Pintu Masuk Utama',
+    posterUrl: passedEvent.posterUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80',
+    organizer: 'EVENT 2 GO'
+  } : defaultEventData;
+
+  const [selectedTicket, setSelectedTicket] = useState(passedTicket || defaultTicket);
+  const [quantity, setQuantity] = useState(passedQuantity);
   const [consent, setConsent] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   const [formData, setFormData] = useState({
-    fullName: 'Raditya Mahendra',
-    email: 'raditya.mahendra@gmail.com',
-    whatsapp: '081289901234',
-    identityNumber: '3174051209930005'
+    fullName: '',
+    email: '',
+    whatsapp: '',
+    identityNumber: ''
   });
 
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -87,9 +103,8 @@ const Checkout = () => {
 
   // Kalkulasi Harga Otomatis & Dinamis
   const subtotal = selectedTicket.price * quantity;
-  const platformFee = selectedTicket.price > 0 ? 25000 : 0;
-  const tax = selectedTicket.price > 0 ? Math.round(subtotal * 0.1) : 0;
-  const grandTotal = subtotal + platformFee + tax;
+  const platformFee = selectedTicket.price > 0 ? 5000 : 0;
+  const grandTotal = subtotal + platformFee;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -114,7 +129,7 @@ const Checkout = () => {
           {/* Logo EVENT2 GO */}
           <div
             onClick={() => navigate('/')}
-            className="flex items-center cursor-pointer group select-none"
+            className="flex items-center cursor-pointer group select-none gap-2"
           >
             <img
               src="/images/Logo logo_EVENT2 GO.png"
@@ -143,11 +158,11 @@ const Checkout = () => {
           {/* Back button & Order ID */}
           <div>
             <button
-              onClick={() => navigate('/events/detail')}
+              onClick={() => navigate(passedEvent?.slug ? `/events/${passedEvent.slug}` : '/events')}
               className="group inline-flex items-center gap-2 text-xs font-black tracking-wider uppercase text-neutral-800 hover:text-[#5046B8] transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
-              <span>KEMBALI KE DETAIL EVENT (YF LIVE IN JAKARTA)</span>
+              <span>KEMBALI KE DETAIL EVENT ({eventData.title.toUpperCase()})</span>
             </button>
             <p className="text-[10px] sm:text-[11px] font-bold text-neutral-500 tracking-wider mt-0.5">
               <span className="text-[#5046B8] font-black uppercase">SESI TRANSAKSI RESMI</span> &bull; {eventData.code}
@@ -340,7 +355,7 @@ const Checkout = () => {
                 {/* Tombol Ubah Tiket */}
                 <button
                   type="button"
-                  onClick={() => navigate('/events/detail')}
+                  onClick={() => navigate(passedEvent?.slug ? `/events/${passedEvent.slug}` : '/events')}
                   className="inline-flex items-center gap-1.5 bg-[#EEEDFA] hover:bg-[#E2E0F8] text-[#5046B8] px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider uppercase transition-colors shrink-0 cursor-pointer"
                 >
                   <Pencil className="w-3.5 h-3.5" />
@@ -513,20 +528,15 @@ const Checkout = () => {
                   <span>Subtotal Harga Tiket</span>
                   <span className="font-bold text-neutral-900">Rp {subtotal.toLocaleString('id-ID')}</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center gap-1">
-                    Biaya Layanan Platform
-                    <Info className="w-3 h-3 text-neutral-400" />
-                  </span>
-                  <span className="font-bold text-neutral-900">Rp {platformFee.toLocaleString('id-ID')}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="flex items-center gap-1">
-                    Pajak Hiburan Daerah (10%)
-                    <Info className="w-3 h-3 text-neutral-400" />
-                  </span>
-                  <span className="font-bold text-neutral-900">Rp {tax.toLocaleString('id-ID')}</span>
-                </div>
+                {platformFee > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-1">
+                      Biaya Layanan Platform
+                      <Info className="w-3 h-3 text-neutral-400" />
+                    </span>
+                    <span className="font-bold text-neutral-900">Rp {platformFee.toLocaleString('id-ID')}</span>
+                  </div>
+                )}
 
                 {/* Divider Line & Total Estimasi */}
                 <div className="border-t border-gray-200 pt-3 mt-2">
@@ -660,19 +670,45 @@ const Checkout = () => {
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         totalAmount={grandTotal}
-        onConfirmPayment={(method) => {
-          setShowPaymentModal(false);
-          navigate('/tickets/sent', {
-            state: {
-              email: formData.email,
-              fullName: formData.fullName,
-              total: grandTotal,
-              totalFormatted: `Rp ${grandTotal.toLocaleString('id-ID')}`,
-              orderId: '#23L-YF26-8819',
-              ticketCategory: selectedTicket.title,
-              paymentMethod: method
-            }
-          });
+        onConfirmPayment={async (method) => {
+          setSubmitting(true);
+          setApiError('');
+          try {
+            // Bersihkan nomor telepon untuk format regex DB (+62 / 08...)
+            const cleanPhone = (formData.whatsapp || '').replace(/[\s-]/g, '') || '081234567890';
+            const bookingPayload = {
+              ticket_type_id: selectedTicket.id,
+              attendee_name: formData.fullName || 'Peserta Event',
+              attendee_email: formData.email,
+              attendee_phone: cleanPhone
+            };
+
+            const res = await createBooking(bookingPayload);
+            setShowPaymentModal(false);
+
+            navigate('/tickets/sent', {
+              state: {
+                email: formData.email,
+                fullName: formData.fullName,
+                orderId: res.ticket_code || (`#EL-${(res.booking_id || '').slice(0, 8)}`),
+                ticketCategory: selectedTicket.title || selectedTicket.name,
+                paymentMethod: method,
+                eventTitle: eventData.title,
+                dateTime: eventData.dateTime,
+                venueName: eventData.venue,
+                total: grandTotal,
+                totalFormatted: `Rp ${grandTotal.toLocaleString('id-ID')}`
+              }
+            });
+          } catch (err) {
+            setShowPaymentModal(false);
+            const msg = err.status === 409
+              ? 'Kuota tiket habis atau email Anda sudah terdaftar di event ini.'
+              : (err.message || 'Gagal memproses pendaftaran.');
+            alert(msg);
+          } finally {
+            setSubmitting(false);
+          }
         }}
       />
 

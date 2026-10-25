@@ -19,15 +19,27 @@ DECLARE
     v_event_id UUID;
     v_quota INTEGER;
     v_sold INTEGER;
+    v_price INTEGER;
+    v_event_status event_status;
+    v_event_ends TIMESTAMPTZ;
     v_booking_id UUID;
     v_ticket_code VARCHAR;
 BEGIN
     -- Kunci baris ticket_types untuk mencegah race condition
-    SELECT event_id, quota, sold INTO v_event_id, v_quota, v_sold
-    FROM ticket_types WHERE id = p_ticket_type_id FOR UPDATE;
+    SELECT tt.event_id, tt.quota, tt.sold, tt.price_idr, e.status, e.ends_at
+      INTO v_event_id, v_quota, v_sold, v_price, v_event_status, v_event_ends
+      FROM ticket_types tt
+      JOIN events e ON e.id = tt.event_id
+     WHERE tt.id = p_ticket_type_id
+       FOR UPDATE OF tt;
 
     IF NOT FOUND THEN
         PERFORM raise_error('EL002', 'Kategori tiket tidak ditemukan');
+    END IF;
+
+    -- Event harus sudah dipublikasikan dan belum selesai
+    IF v_event_status <> 'published' OR v_event_ends <= NOW() THEN
+        PERFORM raise_error('EL002', 'Event tidak tersedia untuk pendaftaran');
     END IF;
 
     -- Cek kuota
@@ -55,18 +67,20 @@ BEGIN
 
     -- Buat payment (simulasi)
     INSERT INTO payments (booking_id, amount_idr, status, paid_at)
-    SELECT v_booking_id, price_idr, 'paid', NOW() FROM ticket_types WHERE id = p_ticket_type_id;
+    VALUES (v_booking_id, v_price, 'paid', NOW());
 
-    -- Buat ticket
-    v_ticket_code := 'TKT-' || UPPER(SUBSTRING(MD5(RANDOM()::TEXT) FROM 1 FOR 8));
+    -- Buat ticket (12 karakter hex acak dari UUID v4, bukan MD5(RANDOM()))
+    v_ticket_code := 'TKT-' || UPPER(SUBSTRING(REPLACE(gen_random_uuid()::TEXT, '-', '') FROM 1 FOR 12));
     INSERT INTO tickets (booking_id, code, status)
     VALUES (v_booking_id, v_ticket_code, 'valid');
 
     RETURN json_build_object(
         'booking_id', v_booking_id,
+        'event_id', v_event_id,
+        'ticket_type_id', p_ticket_type_id,
         'ticket_code', v_ticket_code,
         'attendee_name', p_name,
-        'attendeeEmail', p_email
+        'attendee_email', p_email
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -102,26 +116,33 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 3. CANCEL BOOKING
+-- Membatalkan booking, void tiket, kembalikan kuota, lalu promosikan antrean tertua
+-- (yang belum punya booking aktif di event ini) menjadi booking baru lewat checkout().
+-- Mengembalikan JSON: {booking_id, status, promoted: null | hasil checkout()}
 CREATE OR REPLACE FUNCTION cancel_booking(p_booking_id UUID)
-RETURNS VOID AS $$
+RETURNS JSON AS $$
 DECLARE
     v_ticket_type_id UUID;
     v_event_id UUID;
-    v_waitlist_id UUID;
-    v_waitlist_email CITEXT;
-    v_waitlist_name VARCHAR;
-    v_waitlist_phone VARCHAR;
+    v_status booking_status;
+    v_wait RECORD;
+    v_promoted JSON := NULL;
 BEGIN
     -- Ambil data booking
-    SELECT ticket_type_id, event_id INTO v_ticket_type_id, v_event_id 
+    SELECT ticket_type_id, event_id, status INTO v_ticket_type_id, v_event_id, v_status
     FROM bookings WHERE id = p_booking_id FOR UPDATE;
 
     IF NOT FOUND THEN
         PERFORM raise_error('EL006', 'Pendaftaran tidak ditemukan');
     END IF;
 
+    -- Mencegah kuota dikembalikan dua kali
+    IF v_status = 'cancelled' THEN
+        PERFORM raise_error('EL006', 'Pendaftaran sudah dibatalkan');
+    END IF;
+
     -- Cek EL007: Sudah check-in tidak bisa dibatal
-    IF EXISTS (SELECT 1 FROM check_ins WHERE ticket_id IN (SELECT id FROM tickets WHERE booking_id = p_booking_id)) THEN
+    IF EXISTS (SELECT 1 FROM check_ins c JOIN tickets t ON t.id = c.ticket_id WHERE t.booking_id = p_booking_id) THEN
         PERFORM raise_error('EL007', 'Peserta sudah check-in, tidak dapat dibatalkan');
     END IF;
 
@@ -133,17 +154,27 @@ BEGIN
     UPDATE ticket_types SET sold = sold - 1 WHERE id = v_ticket_type_id;
 
     -- Promosi waitlist tertua
-    SELECT id, attendee_email, attendee_name, attendee_phone 
-    INTO v_waitlist_id, v_waitlist_email, v_waitlist_name, v_waitlist_phone
-    FROM waitlist_entries 
-    WHERE ticket_type_id = v_ticket_type_id AND status = 'waiting' 
-    ORDER BY joined_at ASC LIMIT 1 FOR UPDATE SKIP LOCKED;
+    SELECT w.id, w.attendee_email, w.attendee_name, w.attendee_phone INTO v_wait
+    FROM waitlist_entries w
+    WHERE w.ticket_type_id = v_ticket_type_id AND w.status = 'waiting'
+      AND NOT EXISTS (
+          SELECT 1 FROM bookings b
+           WHERE b.event_id = v_event_id AND b.attendee_email = w.attendee_email
+             AND b.status IN ('pending', 'confirmed'))
+    ORDER BY w.joined_at ASC LIMIT 1 FOR UPDATE OF w SKIP LOCKED;
 
-    IF FOUND THEN
-        UPDATE waitlist_entries SET status = 'promoted', promoted_at = NOW() WHERE id = v_waitlist_id;
-        -- Di sini backend akan membaca return value atau query ulang untuk kirim email
-        -- Untuk simplicity, kita raise notice atau return JSON (opsional, tergantung kebutuhan backend)
+    -- Promosi hanya bila event masih terbuka (checkout akan menolak event yang sudah ditutup)
+    IF FOUND AND EXISTS (SELECT 1 FROM events WHERE id = v_event_id AND status = 'published' AND ends_at > NOW()) THEN
+        UPDATE waitlist_entries SET status = 'promoted', promoted_at = NOW() WHERE id = v_wait.id;
+        -- Buat booking + payment + tiket untuk orang yang naik (transaksi yang sama)
+        v_promoted := checkout(v_ticket_type_id, v_wait.attendee_name, v_wait.attendee_email, v_wait.attendee_phone);
     END IF;
+
+    RETURN json_build_object(
+        'booking_id', p_booking_id,
+        'status', 'cancelled',
+        'promoted', v_promoted
+    );
 END;
 $$ LANGUAGE plpgsql;
 
@@ -157,29 +188,38 @@ DECLARE
     v_ticket_id UUID;
     v_ticket_event_id UUID;
     v_ticket_status ticket_status;
+    v_booking_status booking_status;
+    v_attendee_name VARCHAR;
+    v_ticket_type VARCHAR;
     v_first_check_in TIMESTAMPTZ;
 BEGIN
-    SELECT t.id, b.event_id, t.status INTO v_ticket_id, v_ticket_event_id, v_ticket_status
-    FROM tickets t
-    JOIN bookings b ON t.booking_id = b.id
-    WHERE t.code = p_code
-    FOR UPDATE;
+    SELECT t.id, b.event_id, t.status, b.status, b.attendee_name, tt.name
+      INTO v_ticket_id, v_ticket_event_id, v_ticket_status, v_booking_status, v_attendee_name, v_ticket_type
+      FROM tickets t
+      JOIN bookings b ON t.booking_id = b.id
+      JOIN ticket_types tt ON tt.id = b.ticket_type_id
+     WHERE t.code = p_code
+       FOR UPDATE OF t;
 
     IF NOT FOUND THEN
         RETURN json_build_object('status', 'invalid', 'message', 'Kode tiket tidak valid');
     END IF;
 
-    IF v_ticket_status = 'void' OR (SELECT status FROM bookings WHERE id = (SELECT booking_id FROM tickets WHERE id = v_ticket_id)) = 'cancelled' THEN
-        RETURN json_build_object('status', 'cancelled', 'message', 'Tiket ini telah dibatalkan');
+    IF v_ticket_status = 'void' OR v_booking_status = 'cancelled' THEN
+        RETURN json_build_object('status', 'cancelled', 'message', 'Tiket ini telah dibatalkan',
+                                 'attendee_name', v_attendee_name, 'ticket_type', v_ticket_type);
     END IF;
 
-    IF v_ticket_event_id != p_event_id THEN
-        RETURN json_build_object('status', 'wrong_event', 'message', 'Tiket ini bukan untuk event yang sedang discan');
+    IF v_ticket_event_id <> p_event_id THEN
+        RETURN json_build_object('status', 'wrong_event', 'message', 'Tiket ini bukan untuk event yang sedang discan',
+                                 'attendee_name', v_attendee_name, 'ticket_type', v_ticket_type);
     END IF;
 
     IF v_ticket_status = 'used' THEN
-        SELECT checked_in_at INTO v_first_check_in FROM check_ins WHERE ticket_id = v_ticket_id LIMIT 1;
-        RETURN json_build_object('status', 'already_used', 'message', 'Tiket sudah dipakai', 'first_checked_in_at', v_first_check_in);
+        SELECT checked_in_at INTO v_first_check_in FROM check_ins WHERE ticket_id = v_ticket_id;
+        RETURN json_build_object('status', 'already_used', 'message', 'Tiket sudah dipakai',
+                                 'attendee_name', v_attendee_name, 'ticket_type', v_ticket_type,
+                                 'first_checked_in_at', v_first_check_in);
     END IF;
 
     -- Valid: Insert check_in
@@ -187,17 +227,26 @@ BEGIN
     VALUES (v_ticket_id, p_event_id, p_staff_id, NOW());
 
     -- Trigger akan otomatis mengubah status tiket jadi 'used'
-    RETURN json_build_object('status', 'valid', 'message', 'Check-in berhasil');
+    RETURN json_build_object('status', 'valid', 'message', 'Check-in berhasil',
+                             'attendee_name', v_attendee_name, 'ticket_type', v_ticket_type);
 END;
 $$ LANGUAGE plpgsql;
 
 -- TRIGGER 1: Bookings Audit
+-- changed_by diisi dari setting transaksi 'app.user_id' (di-set backend lewat set_config(..., true)).
 CREATE OR REPLACE FUNCTION audit_bookings_changes()
 RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO audit_log (table_name, record_id, action, old_data, new_data, changed_by)
-    VALUES ('bookings', COALESCE(NEW.id, OLD.id), TG_OP, to_jsonb(OLD), to_jsonb(NEW), NULL);
-    RETURN COALESCE(NEW, OLD);
+    VALUES (
+        'bookings',
+        CASE WHEN TG_OP = 'DELETE' THEN OLD.id ELSE NEW.id END,
+        TG_OP,
+        CASE WHEN TG_OP = 'INSERT' THEN NULL ELSE to_jsonb(OLD) END,
+        CASE WHEN TG_OP = 'DELETE' THEN NULL ELSE to_jsonb(NEW) END,
+        NULLIF(current_setting('app.user_id', true), '')::UUID
+    );
+    RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
 END;
 $$ LANGUAGE plpgsql;
 

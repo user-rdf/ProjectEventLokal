@@ -9,8 +9,8 @@ const CHOICES = [
 export default function Home() {
   return (
     <main className="container" style={{ maxWidth: 640 }}>
-      <div className="center" style={{ margin: "32px 0" }}>
-        <h1 className="logo" style={{ fontSize: "2rem" }}>EventLokal</h1>
+      <div className="center" style={{ margin: "32px 0", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <img src="/images/Logo logo_EVENT2 GO.png" alt="EVENT 2 GO" style={{ height: "48px", width: "auto", marginBottom: "12px" }} />
         <p className="muted">Pendaftaran dan tiket event kampus tanpa Google Form.</p>
       </div>
       {CHOICES.map((c) => (

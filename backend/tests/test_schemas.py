@@ -8,7 +8,7 @@ from app.schemas.event import EventCreate, TicketTypeCreate
 
 
 def booking(**over):
-    data = dict(ticket_type_id=1, attendee_name="Budi Santoso",
+    data = dict(ticket_type_id="3f2b8c1e-9d4a-4b6e-8a57-1c2d3e4f5a6b", attendee_name="Budi Santoso",
                 attendee_email="budi@example.com", attendee_phone="0812-3456-7890")
     data.update(over)
     return BookingCreate(**data)

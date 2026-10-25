@@ -18,6 +18,7 @@ export async function api(path, { method = "GET", body, auth = false } = {}) {
     const err = new Error(errMsg);
     err.status = res.status;
     err.code = data?.error?.code; // Simpan kode (misal: 'EL001') jika komponen UI butuh handle khusus
+    err.body = data;
     throw err;
   }
   return data;

@@ -4,7 +4,7 @@ import Landing from './pages/Landing';
 import EventList from './pages/EventList';
 import EventDetail from './pages/EventDetail';
 import Checkout from './pages/Checkout';
-import Login from './pages/organizer/Login';
+import Login from './pages/Login';
 import TicketSent from './pages/public/TicketSent';
 import Dashboard from './pages/organizer/Dashboard';
 import BuatEvent from './pages/organizer/BuatEvent';
@@ -17,6 +17,7 @@ import Waitlist from './pages/public/Waitlist';
 import ManageLayout from './layouts/ManageLayout';
 import Manage from './pages/organizer/Manage';
 import CreateEvent from './pages/organizer/CreateEvent';
+
 
 function App() {
   return (

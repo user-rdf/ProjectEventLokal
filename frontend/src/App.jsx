@@ -17,8 +17,6 @@ import Waitlist from './pages/public/Waitlist';
 import ManageLayout from './layouts/ManageLayout';
 import Manage from './pages/organizer/Manage';
 import CreateEvent from './pages/organizer/CreateEvent';
-import ManageEventDetail from './pages/organizer/ManageEventDetail';
-
 
 function App() {
   return (
@@ -30,6 +28,7 @@ function App() {
       <Route path="/events/:slug/checkout" element={<Checkout />} />
       <Route path="/events/:slug/register" element={<Checkout />} />
       <Route path="/events/:slug/waitlist" element={<Waitlist />} />
+      <Route path="/waitlist" element={<Waitlist />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/tickets/sent" element={<TicketSent />} />
       <Route path="/ticket-sent" element={<TicketSent />} />
@@ -37,7 +36,7 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/buat-event" element={<BuatEvent />} />
       <Route path="/manage-event/:id" element={<ManageEventDetail />} />
-      <Route path="/daftar-panitia" element={<DaftarPanitia />} />s
+      <Route path="/daftar-panitia" element={<DaftarPanitia />} />
 
       {/* Rute Pengelolaan Panitia & Staf */}
       <Route path="/manage" element={<ManageLayout />}>

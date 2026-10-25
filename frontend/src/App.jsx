@@ -4,7 +4,7 @@ import Landing from './pages/Landing';
 import EventList from './pages/EventList';
 import EventDetail from './pages/EventDetail';
 import Checkout from './pages/Checkout';
-import Login from './pages/organizer/Login';
+import Login from './pages/Login';
 import TicketSent from './pages/public/TicketSent';
 import Dashboard from './pages/organizer/Dashboard';
 import BuatEvent from './pages/organizer/BuatEvent';
@@ -17,7 +17,6 @@ import Waitlist from './pages/public/Waitlist';
 import ManageLayout from './layouts/ManageLayout';
 import Manage from './pages/organizer/Manage';
 import CreateEvent from './pages/organizer/CreateEvent';
-import ManageEventDetail from './pages/organizer/ManageEventDetail';
 
 
 function App() {
@@ -37,7 +36,7 @@ function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/buat-event" element={<BuatEvent />} />
       <Route path="/manage-event/:id" element={<ManageEventDetail />} />
-      <Route path="/daftar-panitia" element={<DaftarPanitia />} />s
+      <Route path="/daftar-panitia" element={<DaftarPanitia />} />
 
       {/* Rute Pengelolaan Panitia & Staf */}
       <Route path="/manage" element={<ManageLayout />}>

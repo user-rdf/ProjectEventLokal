@@ -63,11 +63,6 @@ const Login = () => {
             </div>
           </Link>
 
-          {/* Badge Fitur Panitia */}
-          <div className="inline-flex items-center gap-2 bg-teal-700/40 border border-teal-500/30 px-3.5 py-1.5 rounded-full text-xs font-semibold text-teal-200 mb-8 backdrop-blur-sm">
-            <Sparkles className="w-3.5 h-3.5 text-teal-300" />
-            <span>Portal Khusus Penyelenggara &amp; Staf</span>
-          </div>
 
           <h1 className="text-4xl xl:text-5xl font-black leading-tight mb-5 tracking-tight">
             Kelola event dari<br />pendaftaran sampai<br />pintu masuk.

@@ -29,6 +29,7 @@ function App() {
       <Route path="/events/:slug/checkout" element={<Checkout />} />
       <Route path="/events/:slug/register" element={<Checkout />} />
       <Route path="/events/:slug/waitlist" element={<Waitlist />} />
+      <Route path="/waitlist" element={<Waitlist />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/tickets/sent" element={<TicketSent />} />
       <Route path="/ticket-sent" element={<TicketSent />} />

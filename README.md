@@ -14,7 +14,7 @@ A modern web platform for event registration, digital QR-code ticketing, and aut
 - ⚡ **Atomic Registration Transactions**: Prevents race conditions and ticket quota overselling using row-level locking (`SELECT ... FOR UPDATE`) at the database level.
 - 📋 **Automatic Waitlist (FIFO)**: When tickets sell out, attendees can join a waitlist. When a booking is cancelled (`cancel_booking`), the system automatically promotes the person at the front of the queue.
 - 📱 **QR Code Check-in & Scanner**: Digital e-tickets carry a unique, duplicate-proof QR code for fast attendance verification at the event entrance.
-- 📧 **Automatic E-Ticket Email Delivery**: Sends confirmation emails with a PDF e-ticket attachment via the Mailpit SMTP server.
+- 📧 **Automatic E-Ticket Email Delivery**: Sends responsive HTML confirmation emails with embedded inline QR code e-ticket (CID image) via the Mailpit SMTP server.
 - 📊 **Organizer Management Dashboard**: Track registrant metrics, real-time attendance rate, revenue charts, attendee data export, and a 3-step event creation wizard.
 
 ---
@@ -23,12 +23,12 @@ A modern web platform for event registration, digital QR-code ticketing, and aut
 
 | Component | Technology | Notes |
 | :--- | :--- | :--- |
-| **Frontend** | React 19, Vite, Tailwind CSS v4, Lucide React | Modern, fast Single Page Application (SPA) |
-| **Backend API** | FastAPI (Python 3.12), SQLAlchemy, Pydantic v2 | Asynchronous RESTful architecture with auto-generated OpenAPI docs |
-| **Database** | PostgreSQL 16 | UUIDv4, CITEXT, Stored Functions (PL/pgSQL), Triggers, Views, Partial Indexes |
-| **E-Ticket & QR** | ReportLab, QRCodegen | High-resolution PDF ticket and QR code generator |
-| **Mail Server** | Mailpit | Local SMTP testing server and webmail inspector |
-| **Containerization** | Docker & Docker Compose v2 | Isolated multi-stage builds, production-ready |
+| **Frontend** | React 19, Vite, Tailwind CSS v4, Lucide React, html5-qrcode | Lightweight Single Page Application (SPA) with native Fetch API client |
+| **Backend API** | FastAPI (Python 3.12), psycopg 3 (`psycopg[binary,pool]`), Pydantic v2 | High-performance RESTful API using raw SQL connection pooling (no ORM overhead) |
+| **Database** | PostgreSQL 16 | ACID-compliant, UUIDv4, CITEXT, PL/pgSQL Stored Procedures, Triggers, Views, Partial Indexes |
+| **E-Ticket & QR** | `qrcode[pil]`, Responsive HTML Email (CID inline) | Crisp PNG QR code generator embedded directly into responsive HTML e-ticket emails |
+| **Mail Server** | Mailpit (SMTP & Web UI) | Local SMTP server (`localhost:1025`) and visual inbox inspector (`localhost:8025`) |
+| **Containerization** | Docker & Docker Compose v2 | Isolated multi-stage builds for backend and frontend (Nginx reverse proxy) |
 | **Docker Images** | Docker Hub | `radifmfz/eventlokal-frontend:latest`<br>`radifmfz/eventlokal-backend:latest` |
 
 ---
@@ -222,7 +222,32 @@ erDiagram
 ```
 
 > 📖 **Full Database Documentation**:  
-> See [db/erd/README.md](db/erd/README.md) for the detailed data dictionary, referential integrity rules, and index list.
+> See [db/erd/README.md](db/erd/README.md) for the detailed data dictionary, referential integrity rules, and index list.  
+> 📋 **User Requirements & Acceptance Criteria (IK102)**:  
+> See [docs/user-stories.md](docs/user-stories.md) for 10 complete User Stories written in Given-When-Then format.
+
+---
+
+## 🏛️ Alasan Memilih PostgreSQL sebagai RDBMS Utama
+
+Pemilihan **PostgreSQL 18** sebagai sistem basis data relasional untuk **EVENT 2 GO** didasarkan pada kebutuhan teknis dan integritas sistem tiket yang berkecepatan tinggi:
+
+1. **Jaminan Transaksi ACID & Penanganan Konkurensi Kritis (*Ticket War*)**  
+   Ketika kuota tiket menipis dan ratusan peserta checkout secara serentak, PostgreSQL menyediakan mekanisme penguncian baris pesimistik (*Pessimistic Row-Level Locking*) melalui `SELECT ... FOR UPDATE` di dalam stored function `checkout()`. Mekanisme ini hanya mengunci baris `ticket_types` yang sedang diproses tanpa memblokir pembacaan tabel lain, secara matematis menjamin **zero overselling** tanpa race condition.
+2. **Dukungan Tipe Data Canggih & Ekstensi Native**  
+   - **`citext` (Case-Insensitive Text)**: Memastikan email unik secara native tanpa perlu pemanggilan `LOWER(email)` yang dapat melumpuhkan indeks B-Tree.
+   - **`UUIDv4` (`gen_random_uuid()`)**: Mencegah serangan enumerasi URL publik (misal `/manage-event/1`, `/manage-event/2`) secara kriptografis.
+   - **`TIMESTAMPTZ`**: Menjamin keakuratan pencatatan waktu berbasis zona waktu (*Timezone Awareness*) untuk jadwal acara dan audit check-in.
+   - **`JSONB`**: Menyimpan snapshot data sebelum (*old_data*) dan sesudah (*new_data*) perubahan di tabel `audit_log` secara efisien dan fleksibel.
+   - **Tipe Data `ENUM` Domain**: Menegakkan validasi status (`event_status`, `booking_status`, `ticket_status`, `payment_status`, `waitlist_status`, `user_role`) langsung di level skema.
+3. **Logika Bisnis Terpusat via Stored Functions / PL/pgSQL**  
+   Fungsi transaksi krusial seperti `checkout()`, `cancel_booking()` (dengan promosi otomatis FIFO antrean waitlist), dan `join_waitlist()` dijalankan langsung di engine database. Ini memangkas latensi bolak-balik jaringan (*network round-trip latency*) dan menjamin konsistensi data dari klien mana pun.
+4. **Partial Indexing (Indeks Bersyarat) yang Hemat Memori**  
+   PostgreSQL mendukung pembuatan indeks unik bersyarat dengan klausa `WHERE`. Misalnya:
+   - `idx_unique_active_booking_per_event`: Menjamin keunikan email hanya untuk pemesanan yang aktif (`WHERE status IN ('pending', 'confirmed')`), sehingga peserta yang pernah batal (`cancelled`) tetap bisa mendaftar ulang.
+   - `idx_waitlist_queue`: Mengindeks antrean secara kronologis (`WHERE status = 'waiting'`) dengan kompleksitas pencarian $O(\log N)$ saat promosi FIFO.
+5. **Kemampuan Analitik & Optimasi Kueri Unggul (IK301)**  
+   Dukungan perintah `EXPLAIN (ANALYZE, BUFFERS)` untuk inspeksi rencana kueri mendalam, *buffer cache*, dan biaya eksekusi (*cost*) yang sangat esensial untuk pembuktian performa akademik.
 
 ---
 
@@ -272,17 +297,17 @@ EventLokal/
 ├── backend/
 │   ├── app/
 │   │   ├── core/           # Configuration, JWT security, and email templates
-│   │   ├── db/             # PostgreSQL engine connection (asyncpg / psycopg)
-│   │   ├── repositories/   # Data access layer (raw SQL & ORM)
+│   │   ├── db/             # PostgreSQL connection pool using psycopg 3 (ConnectionPool)
+│   │   ├── repositories/   # Data access layer (raw SQL repository pattern, no ORM)
 │   │   ├── routers/        # FastAPI API endpoints (auth, bookings, events, reports, checkins)
 │   │   ├── schemas/        # Pydantic request & response validation
-│   │   ├── services/       # Business logic, e-ticket PDF generator & email
+│   │   ├── services/       # Business logic, QR code generator (qrcode[pil]) & HTML e-ticket email
 │   │   └── main.py         # FastAPI application entrypoint
 │   ├── tests/              # Automated pytest suite (17 test cases)
 │   └── Dockerfile          # Multi-stage Python 3.12 backend image
 ├── frontend/
 │   ├── src/
-│   │   ├── api/            # Integrated Axios/Fetch API client
+│   │   ├── api/            # Lightweight native Fetch API client wrapper with JWT bearer auth
 │   │   ├── components/     # UI components (Payment Modal, etc.)
 │   │   ├── pages/          # Public and organizer management pages
 │   │   ├── utils/          # Rupiah and date formatting helpers
@@ -291,11 +316,11 @@ EventLokal/
 │   ├── nginx.conf          # Nginx reverse proxy & SPA routing configuration
 │   └── Dockerfile          # Multi-stage frontend build (Vite build + Nginx Alpine)
 ├── db/
-│   ├── erd/                # ERD documentation & data dictionary
+│   ├── erd/                # ERD documentation, data dictionary & PostgreSQL rationale
 │   ├── init/               # Database initialization scripts (schema, functions, views, seed)
 │   └── perf/               # Database query performance tests (EXPLAIN ANALYZE)
-├── docs/                   # API contract specification and academic documentation
-├── compose.yaml            # Multi-container Docker Compose orchestration
+├── docs/                   # User stories (IK102), API contract, and backend module docs
+├── docker-compose.yml      # Multi-container Docker Compose orchestration
 └── README.md               # Main project documentation
 ```
 

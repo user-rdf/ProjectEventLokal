@@ -13,19 +13,24 @@ import {
   Compass
 } from 'lucide-react';
 import { listEvents } from '../api/events';
+import { EVENT_CATEGORIES, getCategoryLabel } from '../utils/categories';
 
 const EventList = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Semua Event');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [backendEvents, setBackendEvents] = useState([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+
+  const categoryFilters = [
+    { label: 'Semua Event', value: '' },
+    ...EVENT_CATEGORIES.map(c => ({ label: c.label, value: c.value }))
+  ];
 
   useEffect(() => {
     let isMounted = true;
     setLoadingEvents(true);
-    const cat = selectedCategory === 'Semua Event' ? '' : selectedCategory.toLowerCase();
-    listEvents({ q: searchQuery, category: cat })
+    listEvents({ q: searchQuery, category: selectedCategory })
       .then((data) => {
         if (!isMounted) return;
         setBackendEvents(Array.isArray(data) ? data : []);
@@ -38,15 +43,6 @@ const EventList = () => {
       });
     return () => { isMounted = false; };
   }, [searchQuery, selectedCategory]);
-
-  const categories = [
-    'Semua Event', 
-    'Workshop', 
-    'Seminar', 
-    'Konser', 
-    'Kompetisi', 
-    'Seni'
-  ];
 
   // Featured Event untuk Banner Hero atas
   const featuredEvent = backendEvents.find((e) => e.remaining > 0) || backendEvents[0] || null;
@@ -74,6 +70,14 @@ const EventList = () => {
       seni: [
         'https://images.unsplash.com/photo-1508997449629-303059a039c0?auto=format&fit=crop&w=600&q=80',
         'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&q=80'
+      ],
+      kampus: [
+        'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=600&q=80'
+      ],
+      komunitas: [
+        'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80'
       ]
     };
     const list = images[category?.toLowerCase()] || images.workshop;
@@ -208,17 +212,17 @@ const EventList = () => {
       {/* ================= CATEGORY HORIZONTAL PILLS ================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs font-semibold">
-          {categories.map((cat, idx) => (
+          {categoryFilters.map((cat, idx) => (
             <button
               key={idx}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => setSelectedCategory(cat.value)}
               className={`whitespace-nowrap px-4 py-2 rounded-full transition-all cursor-pointer ${
-                selectedCategory === cat 
+                selectedCategory === cat.value 
                   ? 'bg-neutral-950 text-white font-bold shadow-sm' 
                   : 'bg-white hover:bg-neutral-100 text-neutral-700 border border-neutral-200'
               }`}
             >
-              {cat}
+              {cat.label}
             </button>
           ))}
         </div>
@@ -251,8 +255,8 @@ const EventList = () => {
             <h3 className="font-black text-base text-neutral-800">Tidak ada event ditemukan</h3>
             <p className="text-xs text-neutral-500 mt-1">Coba gunakan kata kunci pencarian lain atau pilih kategori Semua Event.</p>
             <button
-              onClick={() => { setSelectedCategory('Semua Event'); setSearchQuery(''); }}
-              className="mt-4 px-4 py-2 bg-neutral-900 text-white text-xs font-bold rounded-full hover:bg-neutral-800"
+              onClick={() => { setSelectedCategory(''); setSearchQuery(''); }}
+              className="mt-4 px-4 py-2 bg-neutral-900 text-white text-xs font-bold rounded-full hover:bg-neutral-800 cursor-pointer"
             >
               Reset Filter
             </button>
@@ -277,7 +281,7 @@ const EventList = () => {
                     {item.remaining === 0 ? 'KUOTA HABIS' : 'TERSEDIA'}
                   </span>
                   <span className="absolute top-3 right-3 bg-white/90 text-neutral-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">
-                    {item.category?.toUpperCase()}
+                    {getCategoryLabel(item.category).toUpperCase()}
                   </span>
                 </div>
                 <div className="p-4 flex-1 flex flex-col justify-between">

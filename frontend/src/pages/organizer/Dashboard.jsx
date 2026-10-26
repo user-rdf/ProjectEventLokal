@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ScanLine, ChevronRight, Mail } from 'lucide-react';
+import { Plus, ScanLine, ChevronRight, Mail, LogOut, Search, Filter } from 'lucide-react';
+import { EVENT_CATEGORIES, getCategoryLabel } from '../../utils/categories';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('akan-datang');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   
   // State untuk data dari backend
   const [dashboardData, setDashboardData] = useState(null);
@@ -32,6 +35,9 @@ const Dashboard = () => {
         if (response.ok) {
           const data = await response.json();
           setDashboardData(data);
+          if (data.organizer_name) {
+            localStorage.setItem('organizer_name', data.organizer_name);
+          }
         } else {
           console.error("Gagal mengambil data dashboard:", response.status);
           if (response.status === 401 || response.status === 403) {
@@ -83,6 +89,21 @@ const Dashboard = () => {
   const finishedEvents = dashboardData?.finished || [];
   const organizerName = dashboardData?.organizer_name || localStorage.getItem('organizer_name') || "Panitia Event";
 
+  // Filter berdasarkan kategori dan pencarian
+  const filterList = (list) => {
+    return list.filter((event) => {
+      const matchCat = !selectedCategory || (event.category && event.category.toLowerCase() === selectedCategory.toLowerCase());
+      const matchSearch = !searchQuery || 
+        (event.title && event.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (event.venue && event.venue.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchCat && matchSearch;
+    });
+  };
+
+  const filteredOngoing = filterList(ongoingEvents);
+  const filteredUpcoming = filterList(upcomingEvents);
+  const filteredFinished = filterList(finishedEvents);
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-12">
       {/* Navbar Atas */}
@@ -104,13 +125,24 @@ const Dashboard = () => {
           <div className="bg-[#EEEDFA] text-[#5953C7] w-10 h-10 rounded-full flex items-center justify-center font-bold">
             {organizerName.charAt(0).toUpperCase()}
           </div>
+          <button
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('access_token');
+              navigate('/login');
+            }}
+            title="Keluar dari akun"
+            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </nav>
 
       {/* Konten Utama */}
       <main className="max-w-5xl mx-auto mt-8 px-6">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
             <p className="text-gray-500 mb-1">Halo, {organizerName.split(' ')[0]}</p>
             <h1 className="text-3xl font-bold text-gray-900">Beranda Panitia</h1>
@@ -134,18 +166,67 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Section: Sedang Berlangsung */}
-        <div className="mb-10">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-            <h2 className="font-bold text-lg text-gray-900">Sedang Berlangsung</h2>
+        {/* Search & Filter Kategori Event */}
+        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs mb-8 space-y-3">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari event panitia berdasarkan judul atau lokasi..."
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 hover:bg-gray-100/80 focus:bg-white rounded-xl border border-gray-200 focus:border-[#5953C7] focus:outline-none text-xs sm:text-sm text-gray-900 transition-all"
+              />
+            </div>
+            {selectedCategory && (
+              <button 
+                onClick={() => setSelectedCategory('')}
+                className="text-xs text-[#5953C7] font-bold hover:underline shrink-0 px-2 py-1 cursor-pointer"
+              >
+                Reset Filter
+              </button>
+            )}
           </div>
-          
-          {ongoingEvents.length === 0 ? (
-            <p className="text-gray-500 text-sm">Tidak ada event yang sedang berlangsung.</p>
-          ) : (
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs font-semibold">
+            <button
+              onClick={() => setSelectedCategory('')}
+              className={`whitespace-nowrap px-3.5 py-1.5 rounded-full transition-all cursor-pointer ${
+                selectedCategory === '' 
+                  ? 'bg-[#5953C7] text-white font-bold shadow-xs' 
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+              }`}
+            >
+              Semua Kategori
+            </button>
+            {EVENT_CATEGORIES.map((cat) => (
+              <button
+                key={cat.value}
+                onClick={() => setSelectedCategory(cat.value)}
+                className={`whitespace-nowrap px-3.5 py-1.5 rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
+                  selectedCategory === cat.value 
+                    ? 'bg-[#5953C7] text-white font-bold shadow-xs' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                }`}
+              >
+                <span>{cat.icon}</span>
+                <span>{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Section: Sedang Berlangsung */}
+        {filteredOngoing.length > 0 && (
+          <div className="mb-10">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <h2 className="font-bold text-lg text-gray-900">Sedang Berlangsung ({filteredOngoing.length})</h2>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {ongoingEvents.map((event) => {
+              {filteredOngoing.map((event) => {
                 const totalAttendees = event.total_attendees || event.registered || 0;
                 const checkedIn = event.checked_in || 0;
                 const percentage = calculatePercentage(checkedIn, totalAttendees);
@@ -156,12 +237,18 @@ const Dashboard = () => {
                       <div className="w-20 h-20 bg-[#EEEDFA] text-[#5953C7] rounded-xl overflow-hidden flex items-center justify-center font-black text-xl shrink-0">
                         {event.title?.slice(0, 2).toUpperCase() || 'EV'}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                          <span className="text-xs text-emerald-600 font-semibold">Live</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="flex items-center gap-1 text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Live
+                          </span>
+                          {event.category && (
+                            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#EEEDFA] text-[#5953C7]">
+                              {getCategoryLabel(event.category)}
+                            </span>
+                          )}
                         </div>
-                        <h3 className="font-bold text-gray-900 leading-tight">{event.title}</h3>
+                        <h3 className="font-bold text-gray-900 leading-tight truncate">{event.title}</h3>
                         <p className="text-xs text-gray-500 mt-1">{formatDate(eventDate)}, {formatTime(eventDate)}</p>
                       </div>
                     </div>
@@ -177,8 +264,11 @@ const Dashboard = () => {
                     </div>
                     
                     <div className="flex gap-3">
-                      <button className="flex-1 flex items-center justify-center gap-2 border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50">
-                        <ScanLine size={16} /> Scan tiket
+                      <button 
+                        onClick={() => navigate(`/manage-event/${event.id}`)}
+                        className="flex-1 flex items-center justify-center gap-2 border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold text-sm hover:bg-gray-50 cursor-pointer"
+                      >
+                        <ScanLine size={16} /> Scan Tiket
                       </button>
                       <button 
                         onClick={() => navigate(`/manage-event/${event.id}`)}
@@ -191,33 +281,45 @@ const Dashboard = () => {
                 );
               })}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Section: Tab Daftar Event (Akan Datang & Selesai) */}
         <div>
           <div className="flex gap-6 border-b border-gray-200 mb-4">
             <button 
               onClick={() => setActiveTab('akan-datang')}
-              className={`pb-3 font-bold flex items-center gap-2 transition-colors ${activeTab === 'akan-datang' ? 'border-b-2 border-[#5953C7] text-[#5953C7]' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`pb-3 font-bold flex items-center gap-2 transition-colors cursor-pointer ${activeTab === 'akan-datang' ? 'border-b-2 border-[#5953C7] text-[#5953C7]' : 'text-gray-500 hover:text-gray-700'}`}
             >
-              Akan Datang <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">{upcomingEvents.length}</span>
+              Akan Datang <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">{filteredUpcoming.length}</span>
             </button>
             <button 
               onClick={() => setActiveTab('selesai')}
-              className={`pb-3 font-bold flex items-center gap-2 transition-colors ${activeTab === 'selesai' ? 'border-b-2 border-[#5953C7] text-[#5953C7]' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`pb-3 font-bold flex items-center gap-2 transition-colors cursor-pointer ${activeTab === 'selesai' ? 'border-b-2 border-[#5953C7] text-[#5953C7]' : 'text-gray-500 hover:text-gray-700'}`}
             >
-              Selesai <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">{finishedEvents.length}</span>
+              Selesai <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">{filteredFinished.length}</span>
             </button>
           </div>
 
           {/* Konten Tab: Akan Datang */}
           {activeTab === 'akan-datang' && (
             <div className="space-y-3 animate-in fade-in duration-200">
-              {upcomingEvents.length === 0 ? (
-                <p className="text-gray-500 text-sm py-4">Belum ada event yang akan datang.</p>
+              {filteredUpcoming.length === 0 ? (
+                <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-gray-200 p-6">
+                  <p className="text-gray-500 text-sm font-medium">
+                    {selectedCategory || searchQuery ? 'Tidak ada event yang sesuai dengan filter.' : 'Belum ada event yang akan datang.'}
+                  </p>
+                  {(selectedCategory || searchQuery) && (
+                    <button 
+                      onClick={() => { setSelectedCategory(''); setSearchQuery(''); }}
+                      className="mt-3 text-xs text-[#5953C7] font-bold hover:underline cursor-pointer"
+                    >
+                      Reset Filter
+                    </button>
+                  )}
+                </div>
               ) : (
-                upcomingEvents.map((event) => {
+                filteredUpcoming.map((event) => {
                   const registered = event.registered || 0;
                   const quota = event.quota || event.total_attendees || 100;
                   const percentage = calculatePercentage(registered, quota);
@@ -227,17 +329,25 @@ const Dashboard = () => {
                     <div key={event.id} className="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between hover:shadow-sm cursor-pointer transition-shadow"
                          onClick={() => navigate(`/manage-event/${event.id}`)}>
                       <div className="flex items-center gap-4">
-                        <div className="bg-gray-50 border border-gray-100 rounded-lg p-2 text-center w-16">
+                        <div className="bg-gray-50 border border-gray-100 rounded-lg p-2 text-center w-16 shrink-0">
                           <div className="text-xs text-gray-500 font-semibold uppercase">{formatDate(eventDate).split(' ')[1] || 'TBA'}</div>
                           <div className="text-xl font-bold text-gray-900">{formatDate(eventDate).split(' ')[0] || '-'}</div>
                         </div>
                         <div>
-                          <h4 className="font-bold text-gray-900 text-lg">{event.title}</h4>
-                          <p className="text-sm text-gray-500">📍 {formatDate(eventDate)} • {event.venue || 'Gedung Acara'}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            {event.category && (
+                              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#EEEDFA] text-[#5953C7]">
+                                {getCategoryLabel(event.category)}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-gray-400 font-medium">#{event.status}</span>
+                          </div>
+                          <h4 className="font-bold text-gray-900 text-base sm:text-lg">{event.title}</h4>
+                          <p className="text-xs sm:text-sm text-gray-500">📍 {formatDate(eventDate)} • {event.venue || 'Gedung Acara'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-6">
-                        <div className="text-right">
+                        <div className="text-right hidden sm:block">
                           <div className="text-sm flex justify-between mb-1 gap-4">
                             <span className="text-gray-500 text-xs">Terdaftar</span>
                             <span className="font-bold text-gray-900 text-xs">{registered} / {quota}</span>
@@ -261,10 +371,22 @@ const Dashboard = () => {
           {/* Konten Tab: Selesai */}
           {activeTab === 'selesai' && (
             <div className="space-y-3 animate-in fade-in duration-200">
-              {finishedEvents.length === 0 ? (
-                <p className="text-gray-500 text-sm py-4">Belum ada event yang selesai.</p>
+              {filteredFinished.length === 0 ? (
+                <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-gray-200 p-6">
+                  <p className="text-gray-500 text-sm font-medium">
+                    {selectedCategory || searchQuery ? 'Tidak ada event yang sesuai dengan filter.' : 'Belum ada event yang selesai.'}
+                  </p>
+                  {(selectedCategory || searchQuery) && (
+                    <button 
+                      onClick={() => { setSelectedCategory(''); setSearchQuery(''); }}
+                      className="mt-3 text-xs text-[#5953C7] font-bold hover:underline cursor-pointer"
+                    >
+                      Reset Filter
+                    </button>
+                  )}
+                </div>
               ) : (
-                finishedEvents.map((event) => {
+                filteredFinished.map((event) => {
                   const totalAttendees = event.total_attendees || event.registered || 0;
                   const checkedIn = event.checked_in || 0;
                   const percentage = calculatePercentage(checkedIn, totalAttendees);
@@ -273,25 +395,35 @@ const Dashboard = () => {
                     <div key={event.id} className="bg-white p-4 rounded-xl border border-gray-200 flex items-center justify-between hover:shadow-sm cursor-pointer transition-shadow"
                          onClick={() => navigate(`/manage-event/${event.id}`)}>
                       <div className="flex items-center gap-4">
-                        <div className="bg-gray-50 border border-gray-100 rounded-lg p-2 text-center w-16">
+                        <div className="bg-gray-50 border border-gray-100 rounded-lg p-2 text-center w-16 shrink-0">
                           <div className="text-xs text-gray-500 font-semibold uppercase">{formatDate(eventDate).split(' ')[1] || 'TBA'}</div>
                           <div className="text-xl font-bold text-gray-900">{formatDate(eventDate).split(' ')[0] || '-'}</div>
                         </div>
                         <div>
-                          <h4 className="font-bold text-gray-900 text-lg">{event.title}</h4>
-                          <p className="text-sm text-gray-500">📍 {formatDate(eventDate)} • {event.venue || 'Gedung Acara'}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            {event.category && (
+                              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                {getCategoryLabel(event.category)}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-gray-400 font-medium">Selesai</span>
+                          </div>
+                          <h4 className="font-bold text-gray-900 text-base sm:text-lg">{event.title}</h4>
+                          <p className="text-xs sm:text-sm text-gray-500">📍 {formatDate(eventDate)} • {event.venue || 'Gedung Acara'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-6">
-                        <div className="text-right">
+                        <div className="text-right hidden sm:block">
                           <div className="text-sm flex justify-between mb-1 gap-4">
                             <span className="text-gray-500 text-xs">Hadir</span>
                             <span className="font-bold text-gray-900 text-xs">{checkedIn} / {totalAttendees}</span>
                           </div>
                           <div className="w-32 bg-gray-100 rounded-full h-1.5 mb-1">
-                            <div className="bg-green-500 h-1.5 rounded-full" style={{ width: `${percentage}%` }}></div>
+                            <div className="h-1.5 rounded-full bg-emerald-500" style={{ width: `${percentage}%` }}></div>
                           </div>
-                          <span className="text-gray-500 text-xs font-bold">Selesai</span>
+                          <span className="text-xs font-bold text-emerald-600">
+                            {percentage}% Kehadiran
+                          </span>
                         </div>
                         <ChevronRight className="text-gray-400" />
                       </div>

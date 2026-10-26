@@ -120,16 +120,20 @@ const Checkout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F7FA] text-neutral-900 font-sans selection:bg-[#5046B8] selection:text-white pb-16">
+    <div className="min-h-screen bg-[#F7F7FA] text-neutral-900 font-sans selection:bg-[#5953C7] selection:text-white pb-16">
       
       {/* ================= TOP NAVBAR ================= */}
-      <header className="w-full bg-white border-b border-gray-200/80 sticky top-0 z-50">
+      <header className="w-full bg-white border-b border-gray-200/80 sticky top-0 z-50 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div onClick={() => navigate('/')} className="flex items-center cursor-pointer group select-none gap-2">
-            <span className="text-xl font-black text-[#5046B8]">EVENT 2 GO</span>
+            <img 
+              src="/images/Logo logo_EVENT2 GO.png" 
+              alt="EVENT 2 GO" 
+              className="h-8 sm:h-9 w-auto object-contain group-hover:scale-105 transition-transform"
+            />
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/login')} className="w-9 h-9 rounded-full bg-[#5046B8] hover:bg-[#4339a2] text-white flex items-center justify-center shadow-sm transition-transform active:scale-95 cursor-pointer" title="Akun Saya">
+            <button onClick={() => navigate('/login')} className="w-9 h-9 rounded-full bg-[#5953C7] hover:bg-[#4842b0] text-white flex items-center justify-center shadow-sm transition-transform active:scale-95 cursor-pointer" title="Akun Saya">
               <User className="w-4 h-4 text-white" />
             </button>
           </div>
@@ -140,22 +144,22 @@ const Checkout = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-2">
         <div className="bg-white rounded-2xl border border-gray-200/70 shadow-sm px-5 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <button onClick={() => navigate(passedEvent?.slug ? `/events/${passedEvent.slug}` : '/events')} className="group inline-flex items-center gap-2 text-xs font-black tracking-wider uppercase text-neutral-800 hover:text-[#5046B8] transition-colors">
+            <button onClick={() => navigate(passedEvent?.slug ? `/events/${passedEvent.slug}` : '/events')} className="group inline-flex items-center gap-2 text-xs font-black tracking-wider uppercase text-neutral-800 hover:text-[#5953C7] transition-colors">
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
               <span>KEMBALI KE DETAIL EVENT</span>
             </button>
             <p className="text-[10px] sm:text-[11px] font-bold text-neutral-500 tracking-wider mt-0.5">
-              <span className="text-[#5046B8] font-black uppercase">SESI TRANSAKSI RESMI</span> &bull; {eventData.code}
+              <span className="text-[#5953C7] font-black uppercase">SESI TRANSAKSI RESMI</span> &bull; {eventData.code}
             </p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3 text-xs font-bold">
-            <div className="flex items-center gap-1.5 text-[#5046B8]">
-              <div className="w-5 h-5 rounded-full bg-[#5046B8] text-white flex items-center justify-center shadow-sm"><Check className="w-3 h-3 stroke-[3]" /></div>
+            <div className="flex items-center gap-1.5 text-[#5953C7]">
+              <div className="w-5 h-5 rounded-full bg-[#5953C7] text-white flex items-center justify-center shadow-sm"><Check className="w-3 h-3 stroke-[3]" /></div>
               <span className="text-[11px] uppercase tracking-wider font-extrabold line-through text-neutral-400">1. PILIH TIKET</span>
             </div>
             <div className="w-6 sm:w-8 h-px bg-gray-300"></div>
-            <div className="flex items-center gap-1.5 text-[#5046B8]">
-              <div className="w-5 h-5 rounded-full bg-[#5046B8] text-white flex items-center justify-center text-[10px] font-black shadow-sm">2</div>
+            <div className="flex items-center gap-1.5 text-[#5953C7]">
+              <div className="w-5 h-5 rounded-full bg-[#5953C7] text-white flex items-center justify-center text-[10px] font-black shadow-sm">2</div>
               <span className="text-[11px] uppercase tracking-wider font-black">2. DATA PEMESAN</span>
             </div>
             <div className="w-6 sm:w-8 h-px bg-gray-200"></div>
@@ -175,7 +179,7 @@ const Checkout = () => {
           <div className="lg:col-span-8 space-y-6">
             <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-6 sm:p-8">
               <div className="mb-6">
-                <span className="inline-block text-[10px] font-black tracking-widest text-[#5046B8] uppercase bg-[#5046B8]/10 px-2.5 py-1 rounded-md mb-2">IDENTITAS PENANGGUNG JAWAB</span>
+                <span className="inline-block text-[10px] font-black tracking-widest text-[#5953C7] uppercase bg-[#5953C7]/10 px-2.5 py-1 rounded-md mb-2">IDENTITAS PENANGGUNG JAWAB</span>
                 <h1 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">Data Pemesan (Sesuai Identitas Resmi)</h1>
                 <p className="text-xs text-neutral-500 mt-1">Pastikan data valid karena e-ticket dan QR code masuk akan dikirimkan ke kontak terdaftar.</p>
               </div>
@@ -184,7 +188,7 @@ const Checkout = () => {
                 <div>
                   <label className="block text-[11px] font-black tracking-wider uppercase text-neutral-800 mb-1.5">NAMA LENGKAP (SESUAI KTP / PASPOR) <span className="text-rose-600">*</span></label>
                   <div className="relative">
-                    <input type="text" name="fullName" required value={formData.fullName} onChange={handleInputChange} placeholder="Masukkan nama lengkap sesuai tanda pengenal" className="w-full bg-[#F8F9FC] hover:bg-white focus:bg-white border border-gray-200 focus:border-[#5046B8] focus:ring-2 focus:ring-[#5046B8]/20 rounded-xl px-4 py-3 text-sm text-neutral-900 font-medium transition-all outline-none pr-10" />
+                    <input type="text" name="fullName" required value={formData.fullName} onChange={handleInputChange} placeholder="Masukkan nama lengkap sesuai tanda pengenal" className="w-full bg-[#F8F9FC] hover:bg-white focus:bg-white border border-gray-200 focus:border-[#5953C7] focus:ring-2 focus:ring-[#5953C7]/20 rounded-xl px-4 py-3 text-sm text-neutral-900 font-medium transition-all outline-none pr-10" />
                     <CreditCard className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                 </div>
@@ -193,14 +197,14 @@ const Checkout = () => {
                   <div>
                     <label className="block text-[11px] font-black tracking-wider uppercase text-neutral-800 mb-1.5">ALAMAT EMAIL / GMAIL KONFIRMASI <span className="text-rose-600">*</span></label>
                     <div className="relative">
-                      <input type="email" name="email" required value={formData.email} onChange={handleInputChange} placeholder="contoh: nama@email.com" className="w-full bg-[#F8F9FC] hover:bg-white focus:bg-white border border-gray-200 focus:border-[#5046B8] focus:ring-2 focus:ring-[#5046B8]/20 rounded-xl px-4 py-3 text-sm text-neutral-900 font-medium transition-all outline-none pr-10" />
+                      <input type="email" name="email" required value={formData.email} onChange={handleInputChange} placeholder="contoh: nama@email.com" className="w-full bg-[#F8F9FC] hover:bg-white focus:bg-white border border-gray-200 focus:border-[#5953C7] focus:ring-2 focus:ring-[#5953C7]/20 rounded-xl px-4 py-3 text-sm text-neutral-900 font-medium transition-all outline-none pr-10" />
                       <Mail className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-[11px] font-black tracking-wider uppercase text-neutral-800 mb-1.5">NOMOR WHATSAPP AKTIF <span className="text-rose-600">*</span></label>
                     <div className="relative">
-                      <input type="tel" name="whatsapp" required value={formData.whatsapp} onChange={handleInputChange} placeholder="0812xxxxxxxx" className="w-full bg-[#F8F9FC] hover:bg-white focus:bg-white border border-gray-200 focus:border-[#5046B8] focus:ring-2 focus:ring-[#5046B8]/20 rounded-xl px-4 py-3 text-sm text-neutral-900 font-medium transition-all outline-none pr-10" />
+                      <input type="tel" name="whatsapp" required value={formData.whatsapp} onChange={handleInputChange} placeholder="0812xxxxxxxx" className="w-full bg-[#F8F9FC] hover:bg-white focus:bg-white border border-gray-200 focus:border-[#5953C7] focus:ring-2 focus:ring-[#5953C7]/20 rounded-xl px-4 py-3 text-sm text-neutral-900 font-medium transition-all outline-none pr-10" />
                       <Phone className="w-4 h-4 text-neutral-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
@@ -212,26 +216,26 @@ const Checkout = () => {
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-[10px] font-black tracking-widest text-[#5046B8] uppercase">KATEGORI TIKET TERPILIH</span>
+                    <span className="text-[10px] font-black tracking-widest text-[#5953C7] uppercase">KATEGORI TIKET TERPILIH</span>
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight">{selectedTicket.title}</h2>
                 </div>
-                <button type="button" onClick={() => navigate(passedEvent?.slug ? `/events/${passedEvent.slug}` : '/events')} className="inline-flex items-center gap-1.5 bg-[#EEEDFA] hover:bg-[#E2E0F8] text-[#5046B8] px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider uppercase transition-colors shrink-0 cursor-pointer">
+                <button type="button" onClick={() => navigate(passedEvent?.slug ? `/events/${passedEvent.slug}` : '/events')} className="inline-flex items-center gap-1.5 bg-[#EEEDFA] hover:bg-[#E2E0F8] text-[#5953C7] px-3.5 py-1.5 rounded-full text-xs font-black tracking-wider uppercase transition-colors shrink-0 cursor-pointer">
                   <Pencil className="w-3.5 h-3.5" />
                   <span>UBAH TIKET</span>
                 </button>
               </div>
 
-              <div className="border-2 border-[#5046B8] bg-[#F9F8FE] rounded-2xl p-4 sm:p-5 relative mt-4 shadow-sm">
+              <div className="border-2 border-[#5953C7] bg-[#F9F8FE] rounded-2xl p-4 sm:p-5 relative mt-4 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-10 h-10 rounded-xl bg-[#5046B8]/10 text-[#5046B8] flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#5953C7]/10 text-[#5953C7] flex items-center justify-center shrink-0">
                       <Ticket className="w-5 h-5" />
                     </div>
                     <div>
                       <h3 className="font-extrabold text-sm sm:text-base text-neutral-950">{selectedTicket.title}</h3>
                       <div className="flex items-center gap-2 mt-0.5 text-xs">
-                        <span className="font-black text-[#5046B8]">{selectedTicket.priceFormatted} {selectedTicket.unit}</span>
+                        <span className="font-black text-[#5953C7]">{selectedTicket.priceFormatted} {selectedTicket.unit}</span>
                       </div>
                     </div>
                   </div>
@@ -270,14 +274,14 @@ const Checkout = () => {
               <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-900">
                 <img src={eventData.posterUrl} alt={eventData.title} className="w-full h-full object-cover filter brightness-75" />
                 <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-transparent p-4 flex flex-col justify-end text-white">
-                  <span className="inline-block self-start text-[9px] font-black uppercase tracking-wider bg-[#5046B8] text-white px-2 py-0.5 rounded mb-1.5 shadow-sm">{eventData.badge}</span>
+                  <span className="inline-block self-start text-[9px] font-black uppercase tracking-wider bg-[#5953C7] text-white px-2 py-0.5 rounded mb-1.5 shadow-sm">{eventData.badge}</span>
                   <h4 className="font-black text-base sm:text-lg leading-tight text-white drop-shadow-md">{eventData.title}</h4>
                 </div>
               </div>
 
               <div className="p-4 border-b border-gray-100 flex items-center justify-between text-xs">
                 <div className="flex items-start gap-2">
-                  <Building className="w-4 h-4 text-[#5046B8] shrink-0 mt-0.5" />
+                  <Building className="w-4 h-4 text-[#5953C7] shrink-0 mt-0.5" />
                   <span className="font-bold text-neutral-800 text-[11px] leading-tight">{eventData.venue}</span>
                 </div>
               </div>
@@ -289,7 +293,7 @@ const Checkout = () => {
                     <h5 className="font-extrabold text-neutral-900 leading-snug">{selectedTicket.title}</h5>
                     <p className="text-[11px] text-neutral-500 mt-0.5">{quantity} Tiket x {selectedTicket.priceFormatted}</p>
                   </div>
-                  <span className="font-bold text-[#5046B8] shrink-0">Rp {subtotal.toLocaleString('id-ID')}</span>
+                  <span className="font-bold text-[#5953C7] shrink-0">Rp {subtotal.toLocaleString('id-ID')}</span>
                 </div>
               </div>
 
@@ -319,7 +323,7 @@ const Checkout = () => {
               <div className="p-4 pt-3 border-t border-gray-200 bg-white space-y-3.5">
                 <div className="bg-[#F9FAFB] p-3 rounded-xl border border-gray-200/80">
                   <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                    <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="w-4 h-4 mt-0.5 rounded text-[#5046B8] focus:ring-[#5046B8] border-gray-300 accent-[#5046B8] cursor-pointer" />
+                    <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="w-4 h-4 mt-0.5 rounded text-[#5953C7] focus:ring-[#5953C7] border-gray-300 accent-[#5953C7] cursor-pointer" />
                     <span className="text-[11px] text-neutral-700 leading-snug">
                       Saya setuju data saya (nama, email, nomor telepon) dibagikan ke panitia untuk keperluan event ini, sesuai Kebijakan Privasi.
                     </span>

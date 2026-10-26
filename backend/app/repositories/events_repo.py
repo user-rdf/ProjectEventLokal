@@ -24,7 +24,7 @@ def list_public(conn: Connection, q: str | None, price: str | None, category: st
         sql += " AND title ILIKE %s"
         params.append(f"%{q}%")
     if category:
-        sql += " AND category = %s"
+        sql += " AND category ILIKE %s"
         params.append(category)
     if price == "free":
         sql += " AND min_price = 0"
@@ -133,7 +133,8 @@ def organizer_home(conn: Connection, organizer_id: str) -> dict:
     rows = conn.execute(
         """
         SELECT id, title, slug, status, phase, starts_at, ends_at,
-               total_registered AS registered, total_checked_in AS checked_in
+               total_registered AS registered, total_checked_in AS checked_in,
+               category, venue
           FROM v_event_stats WHERE organizer_id = %s ORDER BY starts_at
         """,
         (organizer_id,),

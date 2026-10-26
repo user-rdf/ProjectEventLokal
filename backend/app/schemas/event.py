@@ -3,8 +3,26 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
-CATEGORIES = ("workshop", "seminar", "himpunan", "kampus", "komunitas")
-Category = Literal["workshop", "seminar", "himpunan", "kampus", "komunitas"]
+CATEGORIES = (
+    "workshop",
+    "seminar",
+    "konser",
+    "kompetisi",
+    "seni",
+    "kampus",
+    "komunitas",
+    "himpunan",
+)
+Category = Literal[
+    "workshop",
+    "seminar",
+    "konser",
+    "kompetisi",
+    "seni",
+    "kampus",
+    "komunitas",
+    "himpunan",
+]
 
 
 class TicketTypeCreate(BaseModel):

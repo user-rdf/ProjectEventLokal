@@ -19,59 +19,83 @@ A modern web platform for event registration, digital QR-code ticketing, and aut
 
 ---
 
+## 🌐 Live Production Deployment (Render Cloud)
+
+Aplikasi **EVENT 2 GO** telah di-deploy dan aktif secara publik di cloud platform **Render** dengan arsitektur satu layanan terpadu (*unified service*):
+
+| Layanan | Tautan Akses (Live URL) | Keterangan |
+| :--- | :--- | :--- |
+| **Web App (Produksi)** | [https://projecteventlokal.onrender.com/](https://projecteventlokal.onrender.com/) | Aplikasi live terpadu (Frontend React + Backend FastAPI) |
+| **Cloud Database** | PostgreSQL Managed (Neon / Render) | Basis data relasional cloud terenkripsi SSL (`sslmode=require`) |
+
+> 🔒 **Dukungan Kamera Scanner & HTTPS Penuh**:  
+> Kebijakan keamanan browser modern (*WebRTC MediaDevices API*) mewajibkan konteks koneksi aman **HTTPS** (atau `localhost`) agar kamera perangkat dapat diakses. Melalui deployment di Render yang secara otomatis menyediakan enkripsi SSL/TLS resmi (`https://`), fitur **QR Code Scanner** panitia pada halaman `/manage-event/:id` dapat langsung memindai tiket peserta menggunakan kamera smartphone maupun laptop tanpa kendala pemblokiran izin kamera.
+
+> ⚡ **Arsitektur Tunggal Terpadu (Zero CORS Issue)**:  
+> Frontend React (Single Page Application) dibundel dan disajikan langsung oleh engine FastAPI backend melalui folder `./static`. Hal ini menyatukan frontend dan backend di bawah satu URL tunggal, mengeliminasi kompleksitas CORS (*Cross-Origin Resource Sharing*), serta mencegah error 404 saat me-refresh rute dinamis (seperti `/events/:slug` atau `/dashboard`).
+
+---
+
 ## 🛠️ Tech Stack & Architecture
 
 | Component | Technology | Notes |
 | :--- | :--- | :--- |
+| **Cloud Hosting** | Render (Web Service) | Unified single container deployment with automated HTTPS |
 | **Frontend** | React 19, Vite, Tailwind CSS v4, Lucide React, html5-qrcode | Lightweight Single Page Application (SPA) with native Fetch API client |
 | **Backend API** | FastAPI (Python 3.12), psycopg 3 (`psycopg[binary,pool]`), Pydantic v2 | High-performance RESTful API using raw SQL connection pooling (no ORM overhead) |
-| **Database** | PostgreSQL 16 | ACID-compliant, UUIDv4, CITEXT, PL/pgSQL Stored Procedures, Triggers, Views, Partial Indexes |
+| **Database** | PostgreSQL 16/18 (Neon Cloud / Local) | ACID-compliant, UUIDv4, CITEXT, PL/pgSQL Stored Procedures, Triggers, Views, Partial Indexes |
 | **E-Ticket & QR** | `qrcode[pil]`, Responsive HTML Email (CID inline) | Crisp PNG QR code generator embedded directly into responsive HTML e-ticket emails |
 | **Mail Server** | Mailpit (SMTP & Web UI) | Local SMTP server (`localhost:1025`) and visual inbox inspector (`localhost:8025`) |
-| **Containerization** | Docker & Docker Compose v2 | Isolated multi-stage builds for backend and frontend (Nginx reverse proxy) |
+| **Containerization** | Docker & Docker Compose v2 | Multi-stage build (Node 20 + Python 3.12-slim) |
 | **Docker Images** | Docker Hub | `radifmfz/eventlokal-frontend:latest`<br>`radifmfz/eventlokal-backend:latest` |
 
 ---
 
 ## 📦 How to Run the Application
 
-### Prerequisites
+### Pilihan 1: Akses Langsung di Cloud (Rekomendasi / Live Demo)
+Anda tidak perlu menginstal dependensi apa pun di komputer lokal. Cukup buka tautan browser:
+- 🌐 **Web App**: [https://projecteventlokal.onrender.com/](https://projecteventlokal.onrender.com/)
+
+---
+
+### Pilihan 2: Menjalankan Secara Lokal (Docker Compose)
+
+Gunakan opsi ini untuk pengembangan lokal (*local development*) atau pengujian offline.
+
+#### Prerequisites
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Docker Compose v2)
 - [Git](https://git-scm.com/)
 
-### 1. Clone the Repository & Set Up the Environment
+#### 1. Clone the Repository & Set Up the Environment
 ```bash
 git clone <repo-url>
 cd eventlokal
 cp .env.example .env
 ```
 
-### 2. Run with Docker Compose
+#### 2. Run with Docker Compose
 
-#### Option A: Build Locally from Source Code
+##### Option A: Build Locally from Source Code
 ```bash
 docker compose up --build -d
 ```
 
-#### Option B: Use Images from Docker Hub (No Source Code Required)
-
-Choose this option if you want to run the application directly using pre-built images published to Docker Hub, without rebuilding the images locally.
-
-Simply run the following command in your terminal:
-
+##### Option B: Use Images from Docker Hub (No Source Code Required)
 ```bash
 docker compose up -d
 ```
 
-### 3. Access the Services
+#### 3. Access the Local Services
 
-| Service | URL | Notes |
+| Service | Local URL | Notes |
 | :--- | :--- | :--- |
-| **Web App (Frontend)** | [http://localhost:3000](http://localhost:3000) | EVENT 2 GO user interface |
+| **Web App (Frontend)** | [http://localhost:3000](http://localhost:3000) (atau `:8000`) | EVENT 2 GO user interface |
 | **API Docs (Swagger UI)** | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive REST API documentation |
 | **API Alternative (ReDoc)** | [http://localhost:8000/redoc](http://localhost:8000/redoc) | API documentation in specification format |
 | **Mailpit (Email Inbox)** | [http://localhost:8025](http://localhost:8025) | Local inbox for checking e-tickets |
 | **PostgreSQL Database** | `localhost:5433` (internal `5432`) | Database connection (User: `eventlokal`) |
+
 
 ---
 

@@ -21,7 +21,9 @@ SELECT
         ELSE 'ongoing'
     END as phase,
     (SELECT COUNT(*) FROM bookings b WHERE b.event_id = e.id AND b.status = 'confirmed') as total_registered,
-    (SELECT COUNT(*) FROM check_ins c WHERE c.event_id = e.id) as total_checked_in
+    (SELECT COUNT(*) FROM check_ins c WHERE c.event_id = e.id) as total_checked_in,
+    e.category,
+    e.venue
 FROM events e;
 
 -- View 3: Ticket Revenue (untuk GET /manage/events/{id}/reports/summary)

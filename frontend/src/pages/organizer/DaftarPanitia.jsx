@@ -151,19 +151,19 @@ export default function DaftarPanitia({ initialMode }) {
           </p>
         </div>
 
-        {/* Statistik Bawah */}
+        {/* Fitur Utama */}
         <div className="grid grid-cols-3 gap-4 border-t border-white/20 pt-6 relative z-10">
           <div>
-            <div className="text-xl font-black">1.200+</div>
-            <div className="text-xs text-purple-200">event kampus</div>
+            <div className="text-lg font-black">FIFO</div>
+            <div className="text-xs text-purple-200">Antrean Otomatis</div>
           </div>
           <div>
-            <div className="text-xl font-black">86 rb</div>
-            <div className="text-xs text-purple-200">tiket terkirim</div>
+            <div className="text-lg font-black">Instan</div>
+            <div className="text-xs text-purple-200">Validasi QR Code</div>
           </div>
           <div>
-            <div className="text-xl font-black">2 dtk</div>
-            <div className="text-xs text-purple-200">per check-in</div>
+            <div className="text-lg font-black">Real-time</div>
+            <div className="text-xs text-purple-200">Laporan Kehadiran</div>
           </div>
         </div>
       </div>

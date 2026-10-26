@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import psycopg
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse
 
 from app.core.errors import database_exception_handler, validation_exception_handler
 from app.db.pool import close_pool, get_conn, init_pool
@@ -48,3 +50,23 @@ for r in (auth.router, public_events.router, bookings.router, manage_events.rout
     api.include_router(r)
 
 app.include_router(api)
+
+
+# ==========================================================
+# PENYAJI HALAMAN REACT (SPA CATCH-ALL)
+# ==========================================================
+# Menggabungkan frontend & backend dalam satu URL/service.
+# Menangani refresh rute SPA seperti /events/:slug dan /dashboard tanpa 404.
+STATIC_DIR = Path("static")
+
+@app.get("/{path:path}", include_in_schema=False)
+def spa(path: str):
+    if path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not Found")
+    f = STATIC_DIR / path
+    if path and f.is_file():
+        return FileResponse(f)
+    index_file = STATIC_DIR / "index.html"
+    if index_file.is_file():
+        return FileResponse(index_file)
+    return FileResponse("static/index.html")

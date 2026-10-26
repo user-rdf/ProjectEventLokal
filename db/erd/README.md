@@ -5,6 +5,36 @@ Basis data diimplementasikan pada **PostgreSQL 16** dengan memanfaatkan fitur ti
 
 ---
 
+## 🏛️ Alasan Memilih PostgreSQL sebagai RDBMS Utama
+
+Pemilihan **PostgreSQL 16** sebagai sistem manajemen basis data relasional (*Relational Database Management System*) untuk **EventLokal (EVENT 2 GO)** didasarkan pada kebutuhan teknis dan integritas bisnis sistem tiket:
+
+1. **Jaminan Transaksi ACID & Penanganan Konkurensi Kritis (*Ticket War*)**
+   - Sistem registrasi tiket rentan terhadap *race condition* ketika puluhan hingga ratusan peserta mencoba merebut kuota terakhir secara bersamaan.
+   - PostgreSQL menyediakan mekanisme penguncian baris pesimistik (*Pessimistic Row-Level Locking*) melalui sintaks `SELECT ... FOR UPDATE`. Mekanisme ini mengunci secara eksklusif hanya baris `ticket_types` yang sedang diproses dalam fungsi `checkout()`, tanpa memblokir pembacaan baris tiket lain (*non-blocking reads*). Hal ini secara matematis mencegah terjadinya *overselling* (tiket terjual melebihi kuota).
+
+2. **Dukungan Tipe Data Canggih & Ekstensi Native**
+   - **`citext` (Case-Insensitive Text Extension)**: Menjamin keunikan alamat email peserta dan panitia secara native tanpa perlu memanggil fungsi manipulasi string `LOWER(email)` yang dapat melumpuhkan indeks B-Tree standar.
+   - **`UUIDv4` (`gen_random_uuid()`)**: Menyediakan kunci primer acak berkekuatan kriptografis, mencegah kerentanan keamanan enumerasi data URL (misalnya menebak ID pemesanan `/manage-event/1`, `/manage-event/2`).
+   - **`TIMESTAMPTZ`**: Menjamin keakuratan pencatatan waktu berbasis zona waktu (*Timezone Awareness*), krusial untuk jadwal mulai-selesai event dan audit check-in kehadiran di lapangan.
+   - **`JSONB` (Binary JSON)**: Memungkinkan tabel `audit_log` menyimpan snapshot data lama (*old_data*) dan baru (*new_data*) secara terstruktur, efisien, dan dapat diindeks jika diperlukan audit mendalam.
+   - **Tipe Data `ENUM` Domain**: Menegakkan validasi status (`event_status`, `booking_status`, `ticket_status`, `payment_status`, `waitlist_status`, `user_role`) langsung di level skema basis data sehingga data anomali tertolak sebelum masuk ke tabel.
+
+3. **Logika Bisnis Terpusat via Stored Procedures / Functions (PL/pgSQL)**
+   - Logika transaksi penting seperti `checkout()`, pembatalan tiket dengan promosi otomatis FIFO `cancel_booking()`, dan pendaftaran antrean `join_waitlist()` dikompilasi langsung di dalam engine database PostgreSQL.
+   - Hal ini memangkas latensi bolak-balik jaringan (*network round-trip latency*) antara server aplikasi dan database, serta menjamin seluruh aturan integritas data terlindungi secara konsisten dari klien mana pun.
+
+4. **Fitur Partial Indexing (Indeks Bersyarat) yang Hemat Memori**
+   - Berbeda dengan DBMS tradisional lain, PostgreSQL mendukung pembuatan indeks parsial dengan klausa `WHERE`.
+   - Contoh implementasi pada proyek ini:
+     - `idx_unique_active_booking_per_event`: Menjamin email hanya boleh unik jika status pemesanannya masih aktif (`WHERE status IN ('pending', 'confirmed')`), sehingga peserta yang pernah membatalkan pesanan (`cancelled`) tetap diizinkan mendaftar kembali di kemudian hari.
+     - `idx_waitlist_queue`: Membangun indeks B-Tree hanya untuk peserta yang berstatus antre (`WHERE status = 'waiting'`), mempercepat seleksi antrean pertama $O(\log N)$ saat promosi tiket terjadi.
+
+5. **Query Optimizer & Performa Analitik Tingkat Lanjut (IK301)**
+   - Fitur analisis kueri mendalam melalui perintah `EXPLAIN (ANALYZE, BUFFERS)` memungkinkan visualisasi *execution plan*, *index scan*, *buffer hit ratio*, dan biaya eksekusi (*cost*) kueri untuk pembuktian optimasi performa dalam kurikulum basis data lanjut.
+
+---
+
 ## 1. Diagram ERD (Mermaid)
 
 ```mermaid

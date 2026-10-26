@@ -90,7 +90,7 @@ const PaymentMethodModal = ({
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
       
       {/* Container Modal */}
-      <div className="bg-white w-full max-w-lg rounded-[24px] p-6 sm:p-7 relative shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border-t-4 border-[#5046B8]">
+      <div className="bg-white w-full max-w-lg rounded-[24px] p-6 sm:p-7 relative shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border-t-4 border-[#5953C7]">
         
         {/* Garis Aksen / Handle Atas */}
         <div className="w-8 h-1 bg-indigo-200 rounded-full mb-3"></div>
